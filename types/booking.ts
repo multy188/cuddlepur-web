@@ -20,3 +20,30 @@ export interface BookingRequest {
   requestedAt: string;
   expiresAt: string;
 }
+
+export interface BookingDetails {
+  id: string;
+  status: "requested" | "accepted" | "payment_required" | "confirmed" | "identity_verified" | "meetup_verified" | "session_ready" | "in_progress" | "completed" | "cancelled";
+  professional: {
+    id: string;
+    name: string;
+    profileImage: string;
+    isVerified: boolean;
+    rating: number;
+  };
+  date: string;
+  timeSlot: string;
+  duration: number;
+  location: string;
+  locationDetails: string;
+  sessionNotes: string;
+  totalAmount: number;
+  platformFee: number;
+  sessionAmount: number;
+  paymentStatus: "pending" | "paid" | "failed" | "refunded";
+  paymentMethod?: string;
+  receiptId?: string;
+  createdAt: string;
+  cancellationDeadline: string;
+  refundAmount: number;
+}

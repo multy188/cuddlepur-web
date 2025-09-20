@@ -1,7 +1,7 @@
 import { useLocation, useRoute } from "wouter";
 import BookingDetails from "@/components/BookingDetails";
 import { useNotifications } from "@/hooks";
-import femaleProfile from "@assets/generated_images/Professional_profile_photo_f962fff8.png";
+import { getBookingDetails } from "@mock/bookingDetails";
 
 export default function BookingDetailsWrapper() {
   const [, setLocation] = useLocation();
@@ -16,33 +16,15 @@ export default function BookingDetailsWrapper() {
     );
   }
   
-  // Mock booking data - in a real app, this would come from an API or state management
-  const mockBookingDetails = {
-    id: params.bookingId,
-    status: "confirmed" as const,
-    professional: {
-      id: "1",
-      name: "Sarah",
-      profileImage: femaleProfile,
-      isVerified: true,
-      rating: 4.8
-    },
-    date: "Tomorrow, Dec 14",
-    timeSlot: "14:00",
-    duration: 2,
-    location: "Your place",
-    locationDetails: "123 Main St, Apartment 4B",
-    sessionNotes: "Looking forward to a relaxing session",
-    totalAmount: 90,
-    platformFee: 9,
-    sessionAmount: 81,
-    paymentStatus: "paid" as const,
-    paymentMethod: "credit_card",
-    receiptId: "receipt-456",
-    createdAt: new Date().toISOString(),
-    cancellationDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    refundAmount: 90
-  };
+  const bookingDetails = getBookingDetails(params.bookingId);
+  
+  if (!bookingDetails) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Booking not found</p>
+      </div>
+    );
+  }
   
   const handleBack = () => {
     setLocation("/bookings");
@@ -65,7 +47,7 @@ export default function BookingDetailsWrapper() {
   };
   
   const handleDownloadReceipt = () => {
-    setLocation(`/receipt/${mockBookingDetails.receiptId}`);
+    setLocation(`/receipt/${bookingDetails.receiptId}`);
   };
   
   const handleVerifyIdentity = () => {
@@ -86,7 +68,7 @@ export default function BookingDetailsWrapper() {
   
   return (
     <BookingDetails
-      booking={mockBookingDetails}
+      booking={bookingDetails}
       userRole="client"
       onBack={handleBack}
       onPayNow={handlePayNow}

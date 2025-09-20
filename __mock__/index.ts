@@ -2,6 +2,7 @@
 export * from './professionals';
 export * from './notifications';
 export * from './bookingRequests';
+export * from './bookingDetails';
 export * from './earnings';
 export * from './dashboardData';
 export * from './messages';

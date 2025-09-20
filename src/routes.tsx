@@ -1,14 +1,8 @@
-import { Route, Switch, Redirect, useLocation } from "wouter";
+import { Route, Switch, Redirect } from "wouter";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
 // Components
-import WelcomeScreen from "@/components/WelcomeScreen";
-import AuthFlow from "@/components/AuthFlow";
-import Dashboard from "@/components/Dashboard";
-import Messages from "@/components/Messages";
-import Profile from "@/components/Profile";
-import ProfessionalView from "@/components/ProfessionalView";
 import SearchPage from "@/components/SearchPage";
 
 // Pages
