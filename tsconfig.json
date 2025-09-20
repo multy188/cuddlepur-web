@@ -19,6 +19,7 @@
       "@/*": ["./client/src/*"],
       "@shared/*": ["./shared/*"],
       "@mock/*": ["./__mock__/*"],
+      "@types": ["./types"],
       "@types/*": ["./types/*"]
     }
   }
