@@ -1,0 +1,757 @@
+# Cuddle App - Complete Screen Design Specifications
+
+## 🎯 Design Guidelines
+- **Target Audience**: Adults 18+ seeking platonic companionship
+- **Tone**: Professional, safe, trustworthy, warm but not romantic
+- **Colors**: Calming blues, soft greens, warm neutrals (avoid reds/pinks that suggest romance)
+- **UI Style**: Clean, modern, accessible with clear CTAs
+- **Safety First**: Always emphasize safety, verification, and platform guidelines
+
+---
+
+## 📱 AUTHENTICATION & ONBOARDING SCREENS
+
+### 1. Welcome/Landing Screen
+**Purpose**: First impression and app introduction
+**Elements**:
+- App logo and tagline: "Safe, Professional Platonic Companionship"
+- Hero image showing diverse, happy people in non-romantic settings (friends talking, people reading together, casual hangouts)
+- Key value propositions: "Verified Professionals", "Safe Environment", "Local Community"
+- "Get Started" button (primary CTA)
+- "Register/Create Account" button (secondary CTA)
+- Terms and age verification notice (18+)
+
+### 2. Phone Number Entry Screen
+**Purpose**: WhatsApp-style registration with phone number
+**Elements**:
+- Country code selector with Ghana flag default
+- Phone number input field
+- "Terms of Service and Privacy Policy" link
+- "Next" button
+- App description text
+- "Existing account? Sign in" link
+
+### 3. OTP Verification Screen
+**Purpose**: Verify phone number with code
+**Elements**:
+- "Enter the 6-digit code sent to +233..." message
+- OTP input fields (6 digits)
+- Resend code timer (60 seconds)
+- "Verify" button
+- "Edit number" option
+- WhatsApp-style UI with timer
+
+### 4. Basic Info Setup Screen
+**Purpose**: Collect essential user information after verification
+**Elements**:
+- Full name input field
+- Date of birth picker (must be 18+)
+- Gender selection
+- Profile photo upload (camera/gallery)
+- "Continue" button
+- Skip photo option
+- Progress indicator (Step 1 of 3)
+
+### 5. ID Verification Upload Screen
+**Purpose**: Identity document upload
+**Elements**:
+- Clear instructions: "Upload a valid government ID"
+- Accepted document types: Ghana Card, Passport, Driver's License
+- Camera/gallery upload options
+- Image preview with crop/rotate tools
+- Document quality guidelines
+- "Upload ID Document" button
+- Progress indicator (Step 2 of 3)
+
+### 6. Live Photo Verification Screen
+**Purpose**: Anti-fraud selfie verification
+**Elements**:
+- Camera viewfinder with face outline guide
+- Instructions: "Take a selfie matching your ID photo"
+- Lighting and positioning tips
+- "Retake" and "Continue" buttons
+- Face detection feedback
+- Progress indicator (Step 3 of 3)
+
+### 7. Verification Pending Screen
+**Purpose**: Waiting for admin approval - can browse but not interact
+**Elements**:
+- Success checkmark icon
+- "Verification Submitted" headline
+- Timeline: "Review typically takes 24-48 hours"
+- "You can browse professionals while waiting" message
+- "Continue to App" button
+- Contact support option
+- **Note**: Users can see professionals but booking/messaging disabled
+
+### 8. Verification Failed Screen
+**Purpose**: Handle failed verification with retry option
+**Elements**:
+- Warning icon
+- "Verification Failed" headline
+- Reason for failure explanation
+- "Try Again" button
+- "Upload New Documents" option
+- Contact support for help
+- Maximum 3 retry attempts notice
+
+---
+
+## 👤 PROFILE SETUP & MANAGEMENT SCREENS
+
+### 9. Profile Setup Screen
+**Purpose**: Complete detailed user profile after basic info
+**Elements**:
+- Profile photo gallery (up to 10 photos upload)
+- **Appearance Section:**
+  - Height selector
+  - Ethnicity selection
+- **About You Section:**
+  - Bio text area with character limit
+  - Interests/hobbies selection tags
+  - Job/occupation field
+- **Lifestyle Section:**
+  - Smoking: Yes/No/Occasionally
+  - Drinking: Yes/No/Occasionally
+- **Location Section:**
+  - Primary location input with auto-completion
+  - Alternate location (optional)
+- **Personal Status:**
+  - Relationship status: Single/Married/In a relationship
+- **Preferences:**
+  - Host/Guest/Both preference
+- "Save Profile" button
+
+### 10. Profile View Screen (Own Profile)
+**Purpose**: View and edit personal profile
+**Elements**:
+- Profile photos grid (up to 10 photos, expandable on tap)
+- Edit profile button
+- Bio and interests display
+- Verification badges (ID verified, Phone verified)
+- Host/Guest preferences
+- Current location display
+- Reviews and ratings section
+- "Apply to be a Professional" button (if eligible)
+
+### 11. Edit Profile Screen
+**Purpose**: Modify profile information
+**Elements**:
+- Photo management grid (add/remove/reorder up to 10 photos)
+- **Appearance Section:**
+  - Height selector
+  - Ethnicity selection
+- **About You Section:**
+  - Bio editor with formatting options
+  - Interests tag selector
+  - Job/occupation field
+- **Lifestyle Section:**
+  - Smoking preferences
+  - Drinking preferences
+- **Location Section:**
+  - Primary location with auto-completion
+  - Alternate location
+- **Personal Status:**
+  - Relationship status selector
+- **Availability (Simple):**
+  - Morning checkbox
+  - Afternoon checkbox
+  - Evening checkbox
+- **Professional Settings (if applicable):**
+  - Hourly rate editor
+- Account settings link
+- "Save Changes" button
+
+### 12. Professional Application Screen
+**Purpose**: Apply to become a cuddle professional
+**Elements**:
+- Application form: Experience, motivation, availability
+- Background check consent
+- Training course information
+- Hourly rate setting
+- Professional photo guidelines
+- Submit application button
+- Disclaimer about approval process
+
+### 13. Professional Training Screen
+**Purpose**: Complete mandatory training course with animations
+**Elements**:
+- Course modules list with progress
+- Animated video player for training content
+- Interactive animations demonstrating proper conduct
+- Progress tracking bar
+- "Continue" and "Previous" navigation
+- Note-taking feature
+- Module completion checkmarks
+
+### 14. Training Quiz Screen
+**Purpose**: Knowledge assessment (10 questions, need 7 correct)
+**Elements**:
+- Question counter (1 of 10)
+- Multiple choice questions
+- Progress bar
+- "Next Question" button
+- Quiz timer (optional)
+- Score tracking
+- "Retake Quiz" option if failed
+- Pass/fail notification (need 7/10 to pass)
+
+---
+
+## 🔍 SEARCH & DISCOVERY SCREENS
+
+### 15. Home/Dashboard Screen
+**Purpose**: Main app navigation hub
+**Elements**:
+- Welcome message with user's name
+- "Who viewed your profile" section (max 5 recent visitors)
+- "Cuddlers online now" section (currently active professionals)
+- Quick actions: "Find Professionals", "My Bookings", "Messages"
+- Recent activity feed
+- Safety tips carousel
+- Navigation bar at bottom
+
+### 16. Professional Search Screen
+**Purpose**: Find and filter cuddle professionals (sorted by recently online)
+**Elements**:
+- Search bar with location filter
+- **Filter Options:**
+  - Gender
+  - Age range
+  - Rating
+  - Hourly rate
+  - Professional status (Available, Busy, Offline)
+- Professional cards with: Photo, name, age, rating, hourly rate, "Last seen" status
+- **No sort options** - automatically ordered by recently online first
+- Online status indicators (green dot for currently online)
+- Distance display
+- "View Profile" buttons
+
+### 17. Professional Profile View Screen
+**Purpose**: Detailed professional information
+**Elements**:
+- Professional photos grid (expandable on tap for full-screen view)
+- Name, age, rating, and verification badges
+- "Last seen" timestamp (e.g., "Active 2 hours ago", "Online now")
+- **Detailed Information:**
+  - Bio and specialties
+  - Height, ethnicity, job
+  - Smoking/drinking preferences
+  - Relationship status
+- Hourly rate prominently displayed
+- **Simple Availability:**
+  - Morning/Afternoon/Evening checkboxes display
+- Reviews from other users
+- "Book Session" button (takes to messages page)
+- Report/Block options in menu
+
+### 16. Map View Screen
+**Purpose**: Geographic view of professionals
+**Elements**:
+- Interactive map with professional markers
+- Cluster indicators for dense areas
+- Professional mini-cards on marker tap
+- Current location indicator
+- Map/List view toggle
+- Search radius adjuster
+
+---
+
+## 📅 BOOKING & SCHEDULING SCREENS
+
+### 18. Booking Request Screen
+**Purpose**: Create a booking request
+**Elements**:
+- Professional info summary
+- Date picker calendar
+- Time slot selector: Morning/Afternoon/Evening
+- Duration selector (1-4 hours)
+- Location options: Your place, Their place, Public venue
+- Location details text field
+- Session notes/preferences
+- Total cost calculation
+- "Send Booking Request" button
+- **Note**: Payment happens AFTER professional accepts
+
+### 19. Booking Payment Screen
+**Purpose**: Payment processing after professional accepts booking
+**Elements**:
+- "Booking Accepted!" confirmation
+- Professional and session details
+- Total amount due
+- Payment method selector (Card, Mobile Money, Bank Transfer)
+- Payment form fields
+- **Cancellation Policy Notice:**
+  - "Cancel 12+ hours before: Full refund"
+  - "Cancel less than 12 hours: 50% refund"
+- Security badges and SSL indicators
+- "Pay Now" button
+- Payment confirmation
+- "Skip Payment" option (with consequences explained)
+
+### 20. My Bookings Screen
+**Purpose**: Dedicated booking management page
+**Elements**:
+- Tabs: Upcoming, Past, Cancelled, Requests
+- Booking cards with: Professional photo, name, date/time, status, amount
+- **Status indicators:** 
+  - Requested (waiting for pro acceptance)
+  - Accepted (payment required)
+  - Confirmed (paid and finalized)
+  - Completed
+- Quick actions: Message, View details, Pay (if accepted), Cancel
+- Filter and sort options
+- Payment status indicators
+- **Cancellation refund info** displayed
+- "New Booking" floating action button
+
+### 21. Booking Details Screen
+**Purpose**: Individual booking management with payment integration
+**Elements**:
+- **Booking status timeline:**
+  - Requested → Accepted → Payment Required → Confirmed → Completed
+- Professional and session details
+- Location and timing information
+- **Payment status section:**
+  - Amount due/paid
+  - Payment method
+  - Receipt download link
+- Modify time request button (if allowed)
+- **Cancellation policy display:**
+  - Current refund amount based on timing
+  - Time remaining until reduced refund
+- Session notes
+- Contact/Message professional
+- Cancel booking option
+- **Receipt viewer** with download option
+
+### 22. Receipt Screen
+**Purpose**: Display and download payment receipts
+**Elements**:
+- Receipt header with transaction ID
+- Booking details (date, time, duration)
+- Professional information
+- Itemized cost breakdown
+- Payment method and timestamp
+- Platform fee breakdown
+- **Download receipt button**
+- **Email receipt option**
+- Print-friendly format
+- Customer support contact
+
+### 23. Time Change Request Screen
+**Purpose**: Request booking time modification
+**Elements**:
+- Current booking time display
+- New date picker
+- New time slot: Morning/Afternoon/Evening
+- Reason selection dropdown
+- Additional notes field
+- Conflict warning if any
+- "Send Request" button
+- Timeline for response
+
+### 24. Time Change Response Screen
+**Purpose**: Respond to time change requests
+**Elements**:
+- Original vs requested time comparison
+- Requester's reason display
+- Accept/Decline buttons
+- Counter-offer option
+- Response message field
+- Time conflict warnings
+
+---
+
+## 💬 MESSAGING & COMMUNICATION SCREENS
+
+### 24. Messages List Screen
+**Purpose**: All conversations overview with booking priority
+**Elements**:
+- **Booking-related conversations at top**
+- Search bar for conversations
+- Conversation previews with: Contact photo, name, last message, timestamp
+- Unread message indicators
+- Online status indicators
+- Filter options: All, Unread, Bookings, General
+- Booking context indicators
+
+### 25. Chat Conversation Screen
+**Purpose**: Individual messaging interface (accessed via booking button)
+**Elements**:
+- Contact header with photo, name, online status
+- **Booking context bar** (if conversation started from booking)
+- Message history with timestamps
+- Text input with character limit
+- Send button
+- Content moderation warnings (if triggered)
+- **Quick booking actions** in header
+- Report/Block options in menu
+- File sharing restrictions notice
+
+### 25. Message Blocked Screen
+**Purpose**: Notify when message is blocked
+**Elements**:
+- Warning icon and headline
+- Explanation of why message was blocked
+- Platform guidelines reminder
+- "Learn More" about messaging rules
+- "Try Again" button
+- Contact support option
+
+### 26. Violation Warning Screen
+**Purpose**: Progressive enforcement notifications
+**Elements**:
+- Warning level indicator
+- Specific violation explanation
+- Violation history summary
+- Platform rules reminder
+- Consequences of further violations
+- "I Understand" acknowledgment button
+- Appeal process information
+
+---
+
+## 📞 VOICE CALLING SCREENS
+
+### 27. Call Interface Screen
+**Purpose**: VoIP calling during bookings
+**Elements**:
+- Large contact photo and name
+- Call timer
+- Mute/unmute button
+- Speaker toggle
+- End call button
+- Call quality indicator
+- Recording disclaimer (if applicable)
+
+### 28. Call Restrictions Screen
+**Purpose**: Explain calling limitations
+**Elements**:
+- Restriction explanation
+- When calling is allowed
+- Alternative communication methods
+- "Got it" acknowledgment button
+
+---
+
+### 29. ID Document View Screen (for Professionals)
+**Purpose**: Allow professionals to verify user identity
+**Elements**:
+- User's ID document display
+- Verification checklist
+- "Identity Matches" confirmation
+- "Report Issue" button
+- Verification notes field
+- Continue to payment confirmation
+
+### 30. Identity Verification Screen (Meetup)
+**Purpose**: In-person identity confirmation
+**Elements**:
+- Step-by-step verification process
+- Photo comparison guide
+- Safety tips for meetups
+- Confirm identity button
+- Report safety concerns
+- Emergency contact options
+
+### 31. Payment Confirmation Screen
+**Purpose**: Confirm payment processed through app
+**Elements**:
+- Payment success confirmation
+- Receipt display and download
+- Session details summary
+- "Start Session" button
+- Contact support for payment issues
+- Refund policy link
+
+---
+
+## 🎯 SESSION MANAGEMENT SCREENS
+
+### 32. Session Countdown Screen
+**Purpose**: Pre-session preparation
+**Elements**:
+- Countdown timer to session start
+- Session details summary
+- Preparation checklist
+- Location and contact information
+- Safety reminders
+- Emergency contact access
+- "I'm Ready" check-in button
+
+### 33. Session In Progress Screen
+**Purpose**: Active session management
+**Elements**:
+- Live session timer
+- Session end button
+- Emergency assistance access
+- Safety check-in reminders
+- Contact information (if needed)
+- Session notes field
+
+### 34. Session Completion Screen
+**Purpose**: End session workflow
+**Elements**:
+- Session summary (duration, activities)
+- "End Session" confirmation
+- Payment confirmation display
+- Rate your experience prompt
+- Safety feedback option
+- "Session Complete" button
+
+---
+
+## ⭐ REVIEWS & RATINGS SCREENS
+
+### 35. Leave Review Screen
+**Purpose**: Post-session feedback
+**Elements**:
+- 5-star rating selector
+- Written review text area
+- Safety rating (separate)
+- Recommend to others checkbox
+- Photo upload option (session appropriate)
+- Submit review button
+- Review guidelines
+
+### 36. Reviews Management Screen
+**Purpose**: View and manage reviews with single reply option
+**Elements**:
+- Reviews received and given tabs
+- Review cards with rating, text, date
+- **Single reply option per review** (one response only)
+- Report inappropriate reviews
+- Review statistics summary
+- Reply character limit
+
+---
+
+## ⚙️ SETTINGS & ACCOUNT SCREENS
+
+### 37. Settings Main Screen
+**Purpose**: Account and app preferences
+**Elements**:
+- Profile settings link
+- Privacy & Notification settings (merged)
+- Payment methods management
+- Help and support
+- Terms and policies
+- Sign out option
+
+### 38. Privacy & Notification Settings Screen
+**Purpose**: Combined privacy and notification preferences
+**Elements**:
+- **Privacy Section:**
+  - Profile visibility options
+  - Location sharing settings
+  - Who can message you
+  - Who can book you (professionals)
+  - Data sharing preferences
+  - Block list management
+- **Notification Section:**
+  - Push notification toggles
+  - Email notification preferences
+  - SMS settings
+  - Booking reminders
+  - Safety alerts
+  - Marketing communications opt-out
+
+### 39. Safety Center Screen
+**Purpose**: Safety resources and tools
+**Elements**:
+- Safety guidelines and tips
+- Report abuse/violation
+- Block/unblock users
+- Emergency contacts setup
+- Safety check-in features
+- Platform policies
+
+### 40. Help & Support Screen
+**Purpose**: User assistance and resources
+**Elements**:
+- FAQ sections
+- Contact support options
+- Live chat (if available)
+- Report bugs/issues
+- Feature requests
+- Community guidelines
+
+---
+
+## 🚫 ERROR & RESTRICTION SCREENS
+
+### 41. Account Suspended Screen
+**Purpose**: Notify suspended users
+**Elements**:
+- Suspension notice and duration
+- Reason for suspension
+- Appeal process information
+- Contact support options
+- When account will be restored
+- Platform rules reminder
+
+### 42. Permanent Ban Screen
+**Purpose**: Notify permanently banned users
+**Elements**:
+- Ban notification
+- Reason for permanent ban
+- Appeal process (if applicable)
+- Data retention information
+- New account creation restrictions
+
+### 43. Age Verification Failed Screen
+**Purpose**: Handle underage registration attempts
+**Elements**:
+- Age requirement notice (18+)
+- Explanation of restriction
+- Alternative resources (if appropriate)
+- Contact support for disputes
+
+### 44. Location Not Supported Screen
+**Purpose**: Handle unsupported geographical areas
+**Elements**:
+- Service area limitations
+- Request service expansion option
+- Alternative suggestions
+- Notification sign-up for expansion
+
+---
+
+## 👨‍💼 PROFESSIONAL-SPECIFIC SCREENS
+
+### 45. Professional Dashboard Screen
+**Purpose**: Professional account overview
+**Elements**:
+- Earnings summary
+- Upcoming bookings
+- New booking requests
+- Professional rating and reviews
+- **Availability settings:**
+  - Morning checkbox
+  - Afternoon checkbox
+  - Evening checkbox
+- Quick actions
+- Profile view analytics
+
+### 46. Booking Requests Screen (Professional)
+**Purpose**: Manage incoming booking requests
+**Elements**:
+- Request list with user info
+- Accept/Decline buttons
+- View user profile option
+- Request details and preferences
+- Response timeline
+- Batch actions
+
+### 47. Earnings & Analytics Screen
+**Purpose**: Professional income tracking
+**Elements**:
+- Earnings dashboard
+- Session history and payments
+- **Receipt management:**
+  - Generated receipts list
+  - Download options
+- Tax summary reports
+- Commission breakdown
+- Payment method management
+- Withdrawal options
+  - Tax summary reports
+- Commission breakdown
+- Payment method management
+- Withdrawal options
+
+---
+
+## 📊 ADMIN SCREENS (Web-based)
+
+### 48. Admin Dashboard
+**Purpose**: Platform oversight and management
+**Elements**:
+- Platform statistics overview
+- User growth metrics
+- Safety incident reports
+- Revenue analytics
+- Active moderations
+- System health indicators
+
+### 49. User Verification Queue
+**Purpose**: Manual verification review
+**Elements**:
+- Pending verifications list
+- ID document viewer
+- Approve/reject actions
+- Verification notes
+- Bulk actions
+- Verification statistics
+
+### 50. Content Moderation Dashboard
+**Purpose**: Review flagged content and violations
+**Elements**:
+- Flagged messages queue
+- Violation severity levels
+- User violation history
+- Moderation actions log
+- Pattern analysis tools
+- False positive tracking
+
+### 51. Safety Reports Management
+**Purpose**: Handle safety and abuse reports
+**Elements**:
+- Report queue with priority levels
+- Investigation tools
+- User communication history
+- Action recommendations
+- Resolution tracking
+- Legal compliance tools
+
+---
+
+## 🎨 Design System Notes
+
+### Color Palette
+- **Primary**: Calming blue (#2563EB)
+- **Secondary**: Soft green (#059669)
+- **Accent**: Warm orange (#EA580C)
+- **Neutral**: Gray scale (#F8FAFC to #1E293B)
+- **Success**: Green (#10B981)
+- **Warning**: Amber (#F59E0B)
+- **Error**: Red (#EF4444)
+
+### Typography
+- **Headers**: Bold, clean sans-serif
+- **Body**: Readable, accessible font sizes
+- **CTAs**: Clear, prominent button text
+- **Safety text**: Emphasized, easily scannable
+
+### Iconography
+- Safety-focused icons (shields, checkmarks)
+- Professional service icons
+- Clear navigation symbols
+- Verification badges
+- Status indicators
+
+### Layout Principles
+- Clean, uncluttered interfaces
+- Prominent safety features
+- Clear information hierarchy
+- Accessible design patterns
+- Mobile-first responsive design
+
+This comprehensive screen list provides designers with detailed requirements for creating a complete, professional, and safety-focused cuddle app interface. The key updates include:
+
+**Major Changes Made:**
+- **WhatsApp-style login**: Phone number entry → OTP verification → Profile setup
+- **Enhanced verification flow**: Users can browse during pending verification but can't book/message
+- **10-photo limit**: Profile photo management with expandable gallery view
+- **Animated training**: Professional training includes interactive animations and 10-question quiz (need 7 correct)
+- **Dashboard insights**: Shows profile visitors (max 5) and online cuddlers
+- **Last seen feature**: Professional search prioritizes recently online users with "last seen" timestamps
+- **Booking integration**: "Book" button leads to messages page, with dedicated booking management
+- **In-app payments**: Payment processing integrated into booking flow
+- **Location autocomplete**: User-set location with autocomplete functionality
+- **Merged settings**: Privacy and notification settings combined into single screen
+- **Single review reply**: Users can only reply once to each review
+- **Removed screens**: Map view, voice calling, professional availability, and client management screens
+
+The design maintains focus on safety, verification, and user experience while supporting the specific business requirements for the Ghana market.
