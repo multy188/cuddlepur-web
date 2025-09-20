@@ -4,7 +4,6 @@ import Dashboard from "@/components/Dashboard";
 
 export default function DashboardWrapper() {
   const [, setLocation] = useLocation();
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   
   const handleNavigation = (path: string) => {
     const routes: Record<string, string> = {
@@ -28,7 +27,6 @@ export default function DashboardWrapper() {
       userName="Alex"
       onNavigate={handleNavigation}
       onSelectUser={handleSelectUser}
-      onOpenFilters={() => setIsFiltersOpen(true)}
       verificationStatus="pending"
     />
   );

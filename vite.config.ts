@@ -21,7 +21,7 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "src"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
       "@mock": path.resolve(import.meta.dirname, "__mock__"),
-      "@types": path.resolve(import.meta.dirname, "types"),
+      "@types": path.resolve(import.meta.dirname, "src", "types"),
     },
   },
   build: {

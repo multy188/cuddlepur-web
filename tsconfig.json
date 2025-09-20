@@ -18,8 +18,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@mock/*": ["./__mock__/*"],
-      "@types": ["./types"],
-      "@types/*": ["./types/*"]
+      "@types": ["./src/types"],
+      "@types/*": ["./src/types/*"]
     }
   }
 }

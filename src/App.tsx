@@ -7,18 +7,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Layout from "@/components/Layout";
 import { Routes } from "./routes";
-import NotificationToast from "@/components/NotificationToast";
-import { useNotifications } from "@/hooks";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  // Use custom hook for notifications
-  const { 
-    notifications, 
-    dismissNotification, 
-    markNotificationAsRead 
-  } = useNotifications();
 
   const handleAuthComplete = () => {
     setIsAuthenticated(true);
@@ -30,16 +21,9 @@ function App() {
         <TooltipProvider>
           <Router>
             <Layout>
-              <Routes 
-                isAuthenticated={isAuthenticated} 
-                onAuthComplete={handleAuthComplete} 
-              />
-              
-              {/* Notification Toast System */}
-              <NotificationToast 
-                notifications={notifications}
-                onDismiss={dismissNotification}
-                onMarkAsRead={markNotificationAsRead}
+              <Routes
+                isAuthenticated={isAuthenticated}
+                onAuthComplete={handleAuthComplete}
               />
             </Layout>
           </Router>

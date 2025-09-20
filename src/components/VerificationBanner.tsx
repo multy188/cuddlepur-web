@@ -2,17 +2,19 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, Clock } from "lucide-react";
 
 interface VerificationBannerProps {
-  verificationStatus: 'pending' | 'verified' | 'failed';
+  verificationStatus: "pending" | "verified" | "failed";
   onTryAgain?: () => void;
-  onSetupProfile?: () => void;
 }
 
-export default function VerificationBanner({ verificationStatus, onTryAgain, onSetupProfile }: VerificationBannerProps) {
-  if (verificationStatus === 'verified') {
+export default function VerificationBanner({
+  verificationStatus,
+  onTryAgain,
+}: VerificationBannerProps) {
+  if (verificationStatus === "verified") {
     return null;
   }
 
-  if (verificationStatus === 'failed') {
+  if (verificationStatus === "failed") {
     return (
       <div className="bg-red-50 dark:bg-red-950 border-b border-red-200 dark:border-red-800 p-4">
         <div className="container mx-auto">
@@ -29,7 +31,7 @@ export default function VerificationBanner({ verificationStatus, onTryAgain, onS
               </div>
             </div>
             {onTryAgain && (
-              <Button 
+              <Button
                 size="sm"
                 onClick={onTryAgain}
                 data-testid="button-try-again-verification"
@@ -43,7 +45,7 @@ export default function VerificationBanner({ verificationStatus, onTryAgain, onS
     );
   }
 
-  if (verificationStatus === 'pending') {
+  if (verificationStatus === "pending") {
     return (
       <div className="bg-blue-50 dark:bg-blue-950 border-b border-blue-200 dark:border-blue-800 p-3">
         <div className="container mx-auto">
@@ -59,16 +61,6 @@ export default function VerificationBanner({ verificationStatus, onTryAgain, onS
                 </p>
               </div>
             </div>
-            {onSetupProfile && (
-              <Button 
-                size="sm"
-                variant="outline"
-                onClick={onSetupProfile}
-                data-testid="button-setup-profile"
-              >
-                Set Up Profile
-              </Button>
-            )}
           </div>
         </div>
       </div>
