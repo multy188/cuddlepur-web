@@ -19,6 +19,7 @@ import {
   Filter,
   ExternalLink
 } from "lucide-react";
+import { earningsData, paymentMethods, transactions, receipts } from '@mock/earnings';
 import {
   Select,
   SelectContent,
@@ -72,117 +73,6 @@ export default function EarningsAnalytics({ onBack }: EarningsAnalyticsProps) {
   const [timeFilter, setTimeFilter] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [searchQuery, setSearchQuery] = useState('');
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
-
-  // Mock data - in real app this would come from API
-  const earningsData = {
-    thisMonth: {
-      gross: 3450,
-      commission: 345,
-      net: 3105,
-      growth: 18.5
-    },
-    lastMonth: {
-      gross: 2910,
-      commission: 291,
-      net: 2619
-    },
-    totalEarnings: 28450,
-    availableBalance: 1250,
-    pendingPayments: 580,
-    totalSessions: 156,
-    averageSession: 2.3,
-    averageRate: 52
-  };
-
-  const paymentMethods: PaymentMethod[] = [
-    {
-      id: "1",
-      type: 'bank',
-      name: 'GCB Bank',
-      details: '****1234',
-      isDefault: true
-    },
-    {
-      id: "2", 
-      type: 'mobile_money',
-      name: 'MTN Mobile Money',
-      details: '+233 24 ***4567',
-      isDefault: false
-    },
-    {
-      id: "3",
-      type: 'paypal',
-      name: 'PayPal',
-      details: 'a***@email.com',
-      isDefault: false
-    }
-  ];
-
-  const transactions: Transaction[] = [
-    {
-      id: "txn_001",
-      date: "2024-09-20",
-      client: "Sarah Mitchell",
-      service: "City Tour Companion",
-      duration: 3,
-      grossAmount: 150,
-      commission: 15,
-      netAmount: 135,
-      status: 'completed',
-      receiptId: "RCP_001"
-    },
-    {
-      id: "txn_002",
-      date: "2024-09-19",
-      client: "Michael Asante", 
-      service: "Business Dinner",
-      duration: 2.5,
-      grossAmount: 125,
-      commission: 12.5,
-      netAmount: 112.5,
-      status: 'completed',
-      receiptId: "RCP_002"
-    },
-    {
-      id: "txn_003",
-      date: "2024-09-18",
-      client: "Jennifer Osei",
-      service: "Photography Session",
-      duration: 4,
-      grossAmount: 180,
-      commission: 18,
-      netAmount: 162,
-      status: 'pending',
-      receiptId: "RCP_003"
-    }
-  ];
-
-  const receipts: Receipt[] = [
-    {
-      id: "RCP_001",
-      date: "2024-09-20",
-      client: "Sarah Mitchell",
-      amount: 150,
-      status: 'viewed',
-      downloadUrl: "/receipts/RCP_001.pdf"
-    },
-    {
-      id: "RCP_002", 
-      date: "2024-09-19",
-      client: "Michael Asante",
-      amount: 125,
-      status: 'sent',
-      downloadUrl: "/receipts/RCP_002.pdf"
-    },
-    {
-      id: "RCP_003",
-      date: "2024-09-18", 
-      client: "Jennifer Osei",
-      amount: 180,
-      status: 'generated',
-      downloadUrl: "/receipts/RCP_003.pdf"
-    }
-  ];
 
   const filteredTransactions = transactions.filter(transaction =>
     transaction.client.toLowerCase().includes(searchQuery.toLowerCase()) ||

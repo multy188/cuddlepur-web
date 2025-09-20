@@ -26,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { professionalDashboardData, upcomingBookings, newRequests } from '@mock/dashboardData';
 
 interface ProfessionalDashboardProps {
   onBack: () => void;
@@ -44,79 +45,8 @@ export default function ProfessionalDashboard({
     evening: false
   });
 
-  // Mock data - in real app this would come from API
-  const dashboardData = {
-    earnings: {
-      thisMonth: 2450,
-      lastMonth: 2100,
-      growth: 16.7
-    },
-    bookings: {
-      upcoming: 8,
-      completed: 156,
-      newRequests: 3
-    },
-    rating: {
-      average: 4.9,
-      totalReviews: 89
-    },
-    analytics: {
-      profileViews: 234,
-      responseRate: 98,
-      averageSessionLength: "2h 15m"
-    }
-  };
-
-  const upcomingBookings = [
-    {
-      id: "1",
-      client: "Sarah M.",
-      avatar: "/placeholder-avatar.jpg",
-      date: "Today",
-      time: "2:00 PM - 4:00 PM",
-      location: "Coffee Shop, Accra",
-      rate: 50
-    },
-    {
-      id: "2", 
-      client: "Michael K.",
-      avatar: "/placeholder-avatar.jpg",
-      date: "Tomorrow",
-      time: "10:00 AM - 12:00 PM",
-      location: "Park Walk, Kumasi",
-      rate: 45
-    },
-    {
-      id: "3",
-      client: "Jennifer A.",
-      avatar: "/placeholder-avatar.jpg", 
-      date: "Sept 22",
-      time: "6:00 PM - 8:00 PM",
-      location: "Restaurant, Tema",
-      rate: 60
-    }
-  ];
-
-  const newRequests = [
-    {
-      id: "1",
-      client: "David L.",
-      avatar: "/placeholder-avatar.jpg",
-      date: "Sept 25",
-      time: "3:00 PM - 5:00 PM",
-      message: "Looking for someone to explore the city with...",
-      rate: 55
-    },
-    {
-      id: "2",
-      client: "Emma R.",
-      avatar: "/placeholder-avatar.jpg",
-      date: "Sept 26", 
-      time: "7:00 PM - 9:00 PM",
-      message: "Need a companion for a dinner event...",
-      rate: 70
-    }
-  ];
+  // Use mock data from centralized location
+  const dashboardData = professionalDashboardData;
 
   const updateAvailability = (period: keyof typeof availability, value: boolean) => {
     setAvailability(prev => ({ ...prev, [period]: value }));

@@ -7,6 +7,7 @@ import ProfileCard from "./ProfileCard";
 import VerificationBanner from "./VerificationBanner";
 import femaleProfile from "@assets/generated_images/Professional_profile_photo_f962fff8.png";
 import maleProfile from "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png";
+import { recentlyOnlineUsers, featuredProfessionals } from '@mock/dashboardData';
 
 interface DashboardProps {
   userName: string;
@@ -17,45 +18,29 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ userName, onNavigate, onSelectUser, onOpenFilters, verificationStatus = 'pending' }: DashboardProps) {
-  // TODO: Remove mock data
-  const profileVisitors = [
-    { id: "1", name: "Sarah", age: 28, location: "Downtown", image: femaleProfile, time: "2 hours ago" },
-    { id: "2", name: "Michael", age: 32, location: "East Legon", image: maleProfile, time: "5 hours ago" },
-    { id: "3", name: "Emma", age: 26, location: "Spintex", image: femaleProfile, time: "1 day ago" }
-  ];
+  // Map image paths in recently online users
+  const profileVisitors = recentlyOnlineUsers.map(user => ({
+    ...user,
+    image: user.image === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
+      ? femaleProfile 
+      : user.image === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
+      ? maleProfile
+      : user.image
+  }));
 
-  const onlineProfessionals = [
-    {
-      id: "1",
-      name: "Sarah",
-      age: 28,
-      location: "Downtown, Ghana",
-      distance: "2.5 km away",
-      rating: 4.8,
-      reviewCount: 47,
-      hourlyRate: 45,
-      bio: "Certified massage therapist specializing in relaxation and stress relief.",
-      profileImage: femaleProfile,
-      isOnline: true,
-      isVerified: true,
-      specialties: ["Relaxation", "Stress Relief"]
-    },
-    {
-      id: "2", 
-      name: "Michael",
-      age: 32,
-      location: "East Legon, Ghana",
-      distance: "4.1 km away",
-      rating: 4.9,
-      reviewCount: 63,
-      hourlyRate: 50,
-      bio: "Professional counselor offering supportive companionship and conversation.",
-      profileImage: maleProfile,
-      isOnline: true,
-      isVerified: true,
-      specialties: ["Conversation", "Support"]
-    }
-  ];
+  // Map image paths in featured professionals
+  const onlineProfessionals = featuredProfessionals.map(prof => ({
+    ...prof,
+    profileImage: prof.profileImage === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
+      ? femaleProfile 
+      : prof.profileImage === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
+      ? maleProfile
+      : prof.profileImage,
+    bio: prof.id === "1" 
+      ? "Certified massage therapist specializing in relaxation and stress relief."
+      : "Professional counselor offering supportive companionship and conversation.",
+    location: prof.id === "1" ? "Downtown, Ghana" : "East Legon, Ghana"
+  }));
 
   const safetyTips = [
     "Always meet in public for first sessions",

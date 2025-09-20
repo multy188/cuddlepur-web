@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { mockBookingRequests } from '@mock/bookingRequests';
 
 interface BookingRequestsProps {
   onBack: () => void;
@@ -69,97 +70,8 @@ export default function BookingRequests({ onBack, onViewUserProfile }: BookingRe
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [responseMessage, setResponseMessage] = useState('');
 
-  // Mock data - in real app this would come from API
-  const bookingRequests: BookingRequest[] = [
-    {
-      id: "1",
-      client: {
-        id: "user1",
-        name: "Sarah Mitchell",
-        avatar: "/placeholder-avatar.jpg",
-        age: 28,
-        rating: 4.8,
-        isVerified: true
-      },
-      date: "2024-09-25",
-      time: "14:00 - 16:00",
-      duration: 2,
-      location: "Coffee Shop, East Legon, Accra",
-      hourlyRate: 50,
-      totalAmount: 100,
-      message: "Hi! I'm new to Accra and would love someone to show me around the city. I'm particularly interested in local art galleries and good coffee places. Looking for a friendly companion for the afternoon!",
-      specialRequests: ["Non-smoking", "Outdoor activities"],
-      status: 'pending',
-      requestedAt: "2024-09-20 10:30",
-      expiresAt: "2024-09-22 10:30"
-    },
-    {
-      id: "2", 
-      client: {
-        id: "user2",
-        name: "Michael Asante",
-        avatar: "/placeholder-avatar.jpg",
-        age: 35,
-        rating: 4.9,
-        isVerified: true
-      },
-      date: "2024-09-26",
-      time: "19:00 - 22:00", 
-      duration: 3,
-      location: "Fine Dining Restaurant, Airport City",
-      hourlyRate: 60,
-      totalAmount: 180,
-      message: "I have a business dinner and need a professional companion who can engage in interesting conversation. The event is semi-formal. Experience with corporate environments preferred.",
-      specialRequests: ["Formal attire", "Business experience"],
-      status: 'pending',
-      requestedAt: "2024-09-20 15:45",
-      expiresAt: "2024-09-23 15:45"
-    },
-    {
-      id: "3",
-      client: {
-        id: "user3", 
-        name: "Jennifer Osei",
-        avatar: "/placeholder-avatar.jpg",
-        age: 24,
-        rating: 4.6,
-        isVerified: false
-      },
-      date: "2024-09-28",
-      time: "10:00 - 14:00",
-      duration: 4, 
-      location: "Botanical Gardens, University of Ghana",
-      hourlyRate: 45,
-      totalAmount: 180,
-      message: "Looking for someone to accompany me to a photography session at the botanical gardens. I'm a nature photographer and would appreciate someone who enjoys being outdoors and doesn't mind walking around for a few hours.",
-      specialRequests: ["Outdoor activities", "Photography interest"],
-      status: 'pending',
-      requestedAt: "2024-09-20 09:15",
-      expiresAt: "2024-09-25 09:15"
-    },
-    {
-      id: "4",
-      client: {
-        id: "user4",
-        name: "David Mensah", 
-        avatar: "/placeholder-avatar.jpg",
-        age: 42,
-        rating: 4.7,
-        isVerified: true
-      },
-      date: "2024-09-24",
-      time: "18:00 - 21:00",
-      duration: 3,
-      location: "Cultural Center, Kumasi", 
-      hourlyRate: 55,
-      totalAmount: 165,
-      message: "Attending a cultural event and would like a companion who appreciates Ghanaian arts and culture. The event includes traditional music and dance performances.",
-      specialRequests: ["Cultural interest", "Traditional events"],
-      status: 'accepted',
-      requestedAt: "2024-09-19 14:20",
-      expiresAt: "2024-09-21 14:20"
-    }
-  ];
+  // Use mock data from centralized location
+  const bookingRequests = mockBookingRequests;
 
   const filteredRequests = bookingRequests.filter(request => {
     const matchesFilter = filter === 'all' || request.status === filter;

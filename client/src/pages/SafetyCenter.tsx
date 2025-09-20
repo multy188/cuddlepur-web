@@ -1,45 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, AlertTriangle, Phone, Users, FileText, Eye } from "lucide-react";
+import { safetyGuidelines, emergencyContacts } from '@mock/safetyData';
 
 interface SafetyCenterProps {
   onBack: () => void;
 }
 
 export default function SafetyCenter({ onBack }: SafetyCenterProps) {
-  const safetyGuidelines = [
-    {
-      title: "Meeting in Public",
-      description: "Always meet in public spaces for first sessions to ensure your safety and comfort."
-    },
-    {
-      title: "Trust Your Instincts",
-      description: "If something feels wrong, trust your instincts and end the session if necessary."
-    },
-    {
-      title: "Share Your Plans",
-      description: "Let someone you trust know where you're going and when you'll be back."
-    },
-    {
-      title: "Use In-App Communication",
-      description: "Keep all communication within the app to maintain a record of conversations."
-    },
-    {
-      title: "Verify Identity",
-      description: "All professionals undergo ID verification and background checks before joining."
-    },
-    {
-      title: "Report Inappropriate Behavior",
-      description: "Report any violations of our community guidelines immediately."
-    }
-  ];
-
-  const emergencyContacts = [
-    { name: "Ghana Police Service", number: "999" },
-    { name: "National Ambulance Service", number: "193" },
-    { name: "Ghana Fire Service", number: "192" }
-  ];
-
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}

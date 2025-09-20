@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import AuthFlow from "@/components/AuthFlow";
 import Dashboard from "@/components/Dashboard";
@@ -48,6 +47,7 @@ import SafetyReportsManagement from "@/pages/SafetyReportsManagement";
 import NotificationToast, { Notification } from "@/components/NotificationToast";
 import femaleProfile from "@assets/generated_images/Professional_profile_photo_f962fff8.png";
 import maleProfile from "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png";
+import { mockProfessionals } from "@mock/professionals";
 
 type AppState = "welcome" | "auth" | "dashboard" | "search" | "bookings" | "messages" | "profile" | "professional-view" | "booking-request" | "booking-payment" | "booking-details" | "receipt" | "time-change-request" | "time-change-response" | "id-document-view" | "identity-verification" | "session-start" | "review-system" | "how-it-works" | "faq" | "terms" | "privacy" | "verification-failed" | "safety-center" | "help-support" | "account-suspended" | "permanent-ban" | "age-verification-failed" | "professional-dashboard" | "booking-requests" | "earnings-analytics" | "admin-dashboard" | "admin-verification-queue" | "admin-content-moderation" | "admin-safety-reports";
 
@@ -102,131 +102,23 @@ function App() {
     );
   };
 
-  // Demo: Add sample notifications on app load (remove in production)
-  const addSampleNotifications = () => {
-    const sampleNotifications = [
-      {
-        type: 'booking_request' as const,
-        title: 'New Booking Request',
-        message: 'Sarah wants to book a session with you for tomorrow at 2:00 PM',
-        userImage: femaleProfile,
-        userName: 'Sarah Johnson'
-      },
-      {
-        type: 'verification_approved' as const,
-        title: 'Verification Approved',
-        message: 'Your identity verification has been successfully completed'
-      },
-      {
-        type: 'booking_paid' as const,
-        title: 'Payment Received',
-        message: 'You received $90 for your session with Michael',
-        userImage: maleProfile,
-        userName: 'Michael Brown'
-      },
-      {
-        type: 'profile_reviewed' as const,
-        title: 'New Profile Review',
-        message: 'Emma left a 5-star review on your profile',
-        userImage: femaleProfile,
-        userName: 'Emma Davis'
-      }
-    ];
-
-    sampleNotifications.forEach((notification, index) => {
-      setTimeout(() => addNotification(notification), index * 2000);
-    });
-  };
   
-  const mockProfessionals = [
-    {
-      id: "1",
-      name: "Sarah",
-      age: 28,
-      location: "Downtown, Ghana",
-      distance: "2.5 km away",
-      rating: 4.8,
-      reviewCount: 47,
-      hourlyRate: 45,
-      bio: "Certified massage therapist specializing in relaxation and stress relief. I love creating safe, comfortable spaces for meaningful connection.",
-      profileImage: femaleProfile,
-      profileImages: [femaleProfile, femaleProfile, femaleProfile],
-      isOnline: true,
-      isVerified: true,
-      specialties: ["Relaxation", "Stress Relief", "Conversation"],
-      height: "5'6\"",
-      ethnicity: "African",
-      job: "Massage Therapist",
-      smoking: "No",
-      drinking: "Occasionally",
-      relationshipStatus: "Single",
-      availability: {
-        morning: true,
-        afternoon: false,
-        evening: true
-      },
-      reviews: [
-        {
-          id: "1",
-          reviewer: "John D.",
-          rating: 5,
-          comment: "Sarah was wonderful company! Very respectful and great conversation.",
-          date: "2 weeks ago"
-        },
-        {
-          id: "2",
-          reviewer: "Lisa M.",
-          rating: 4,
-          comment: "Had a lovely afternoon exploring the city. Highly recommend!",
-          date: "3 weeks ago"
-        }
-      ]
-    },
-    {
-      id: "2",
-      name: "Michael", 
-      age: 32,
-      location: "East Legon, Ghana",
-      distance: "4.1 km away",
-      rating: 4.9,
-      reviewCount: 63,
-      hourlyRate: 50,
-      bio: "Professional counselor offering supportive companionship and conversation. Experienced in creating comfortable, judgment-free environments.",
-      profileImage: maleProfile,
-      profileImages: [maleProfile, maleProfile],
-      isOnline: true,
-      lastSeen: "Active 1 hour ago",
-      isVerified: true,
-      specialties: ["Conversation", "Support", "Counseling"],
-      height: "6'0\"",
-      ethnicity: "African",
-      job: "Professional Counselor",
-      smoking: "No",
-      drinking: "No",
-      relationshipStatus: "In a relationship",
-      availability: {
-        morning: false,
-        afternoon: true,
-        evening: true
-      },
-      reviews: [
-        {
-          id: "3",
-          reviewer: "Emma K.",
-          rating: 5,
-          comment: "Michael is an excellent listener and provides great emotional support.",
-          date: "1 week ago"
-        },
-        {
-          id: "4",
-          reviewer: "David S.",
-          rating: 5,
-          comment: "Professional and caring. Really helped me through a difficult time.",
-          date: "2 weeks ago"
-        }
-      ]
-    }
-  ];
+  // Map image paths in mockProfessionals
+  const professionalsWithImages = mockProfessionals.map(prof => ({
+    ...prof,
+    profileImage: prof.profileImage === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
+      ? femaleProfile 
+      : prof.profileImage === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
+      ? maleProfile
+      : prof.profileImage,
+    profileImages: prof.profileImages.map((img: string) => 
+      img === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
+        ? femaleProfile 
+        : img === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
+        ? maleProfile
+        : img
+    )
+  }));
 
 
   const handleAuthComplete = () => {
@@ -356,7 +248,7 @@ function App() {
               />
               
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {mockProfessionals.map((professional) => (
+                {professionalsWithImages.map((professional) => (
                   <ProfessionalGridCard
                     key={professional.id}
                     id={professional.id}
@@ -494,7 +386,7 @@ function App() {
         );
 
       case "professional-view":
-        const professional = mockProfessionals.find(p => p.id === selectedProfessional);
+        const professional = professionalsWithImages.find(p => p.id === selectedProfessional);
         if (!professional) {
           return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -514,7 +406,7 @@ function App() {
         );
 
       case "booking-request":
-        const professionalForBooking = mockProfessionals.find(p => p.id === selectedProfessional);
+        const professionalForBooking = professionalsWithImages.find(p => p.id === selectedProfessional);
         if (!professionalForBooking) {
           return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -1050,18 +942,7 @@ function App() {
               onDismiss={dismissNotification}
               onMarkAsRead={markNotificationAsRead}
             />
-            
-            {/* Demo: Test notification button - remove in production */}
-            {currentState === "dashboard" && (
-              <Button
-                className="fixed bottom-24 left-4 z-40"
-                onClick={addSampleNotifications}
-                size="sm"
-                data-testid="test-notifications-button"
-              >
-                Test Notifications
-              </Button>
-            )}
+           
             
             {/* Bottom Navigation - only show when authenticated and not on welcome/auth */}
             {isAuthenticated && currentState !== "welcome" && currentState !== "auth" && (
