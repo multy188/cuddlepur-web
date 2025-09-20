@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockBookingRequests } from '@mock/bookingRequests';
+import { useBookingRequests } from '@/hooks';
 
 interface BookingRequestsProps {
   onBack: () => void;
@@ -65,22 +65,19 @@ interface BookingRequest {
 }
 
 export default function BookingRequests({ onBack, onViewUserProfile }: BookingRequestsProps) {
-  const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'declined'>('pending');
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedRequests, setSelectedRequests] = useState<string[]>([]);
   const [responseMessage, setResponseMessage] = useState('');
 
-  // Use mock data from centralized location
-  const bookingRequests = mockBookingRequests;
+  // Use booking requests hook
+  const {
+    filteredRequests,
+    filter,
+    setFilter,
+    searchQuery,
+    setSearchQuery,
+    pendingCount
+  } = useBookingRequests();
 
-  const filteredRequests = bookingRequests.filter(request => {
-    const matchesFilter = filter === 'all' || request.status === filter;
-    const matchesSearch = request.client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         request.location.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
-
-  const pendingCount = bookingRequests.filter(r => r.status === 'pending').length;
 
   const handleSelectRequest = (requestId: string, checked: boolean) => {
     if (checked) {

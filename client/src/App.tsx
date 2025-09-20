@@ -47,7 +47,7 @@ import SafetyReportsManagement from "@/pages/SafetyReportsManagement";
 import NotificationToast, { Notification } from "@/components/NotificationToast";
 import femaleProfile from "@assets/generated_images/Professional_profile_photo_f962fff8.png";
 import maleProfile from "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png";
-import { mockProfessionals } from "@mock/professionals";
+import { useProfessionals, useNotifications } from "@/hooks";
 
 type AppState = "welcome" | "auth" | "dashboard" | "search" | "bookings" | "messages" | "profile" | "professional-view" | "booking-request" | "booking-payment" | "booking-details" | "receipt" | "time-change-request" | "time-change-response" | "id-document-view" | "identity-verification" | "session-start" | "review-system" | "how-it-works" | "faq" | "terms" | "privacy" | "verification-failed" | "safety-center" | "help-support" | "account-suspended" | "permanent-ban" | "age-verification-failed" | "professional-dashboard" | "booking-requests" | "earnings-analytics" | "admin-dashboard" | "admin-verification-queue" | "admin-content-moderation" | "admin-safety-reports";
 
@@ -78,47 +78,15 @@ function App() {
   // Additional state for new features
   const [profileEditMode, setProfileEditMode] = useState(false);
   
-  // Notification system state
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // Notification management functions
-  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'isRead'>) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: Date.now().toString(),
-      timestamp: new Date(),
-      isRead: false
-    };
-    setNotifications(prev => [newNotification, ...prev]);
-  };
-
-  const dismissNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  const markNotificationAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === id ? { ...n, isRead: true } : n)
-    );
-  };
-
-  
-  // Map image paths in mockProfessionals
-  const professionalsWithImages = mockProfessionals.map(prof => ({
-    ...prof,
-    profileImage: prof.profileImage === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
-      ? femaleProfile 
-      : prof.profileImage === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
-      ? maleProfile
-      : prof.profileImage,
-    profileImages: prof.profileImages.map((img: string) => 
-      img === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
-        ? femaleProfile 
-        : img === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
-        ? maleProfile
-        : img
-    )
-  }));
+  // Use custom hooks for data management
+  const { professionals } = useProfessionals();
+  const { 
+    notifications, 
+    addNotification, 
+    dismissNotification, 
+    markNotificationAsRead,
+    addSampleNotifications 
+  } = useNotifications();
 
 
   const handleAuthComplete = () => {
@@ -248,7 +216,7 @@ function App() {
               />
               
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {professionalsWithImages.map((professional) => (
+                {professionals.map((professional) => (
                   <ProfessionalGridCard
                     key={professional.id}
                     id={professional.id}
@@ -386,7 +354,7 @@ function App() {
         );
 
       case "professional-view":
-        const professional = professionalsWithImages.find(p => p.id === selectedProfessional);
+        const professional = professionals.find(p => p.id === selectedProfessional);
         if (!professional) {
           return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -406,7 +374,7 @@ function App() {
         );
 
       case "booking-request":
-        const professionalForBooking = professionalsWithImages.find(p => p.id === selectedProfessional);
+        const professionalForBooking = professionals.find(p => p.id === selectedProfessional);
         if (!professionalForBooking) {
           return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -446,8 +414,8 @@ function App() {
           id: "booking-123",
           professional: {
             id: currentBooking.professionalId,
-            name: mockProfessionals.find(p => p.id === currentBooking.professionalId)?.name || "Unknown",
-            profileImage: mockProfessionals.find(p => p.id === currentBooking.professionalId)?.profileImage || "",
+            name: professionals.find(p => p.id === currentBooking.professionalId)?.name || "Unknown",
+            profileImage: professionals.find(p => p.id === currentBooking.professionalId)?.profileImage || "",
             isVerified: true
           },
           date: currentBooking.date?.toDateString() || "",

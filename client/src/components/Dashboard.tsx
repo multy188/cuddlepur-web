@@ -7,7 +7,7 @@ import ProfileCard from "./ProfileCard";
 import VerificationBanner from "./VerificationBanner";
 import femaleProfile from "@assets/generated_images/Professional_profile_photo_f962fff8.png";
 import maleProfile from "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png";
-import { recentlyOnlineUsers, featuredProfessionals } from '@mock/dashboardData';
+import { useDashboard } from '@/hooks';
 
 interface DashboardProps {
   userName: string;
@@ -18,29 +18,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ userName, onNavigate, onSelectUser, onOpenFilters, verificationStatus = 'pending' }: DashboardProps) {
-  // Map image paths in recently online users
-  const profileVisitors = recentlyOnlineUsers.map(user => ({
-    ...user,
-    image: user.image === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
-      ? femaleProfile 
-      : user.image === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
-      ? maleProfile
-      : user.image
-  }));
-
-  // Map image paths in featured professionals
-  const onlineProfessionals = featuredProfessionals.map(prof => ({
-    ...prof,
-    profileImage: prof.profileImage === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
-      ? femaleProfile 
-      : prof.profileImage === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
-      ? maleProfile
-      : prof.profileImage,
-    bio: prof.id === "1" 
-      ? "Certified massage therapist specializing in relaxation and stress relief."
-      : "Professional counselor offering supportive companionship and conversation.",
-    location: prof.id === "1" ? "Downtown, Ghana" : "East Legon, Ghana"
-  }));
+  const { recentlyOnlineUsers: profileVisitors, featuredProfessionals: onlineProfessionals } = useDashboard();
 
   const safetyTips = [
     "Always meet in public for first sessions",

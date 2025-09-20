@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, AlertTriangle, Phone, Users, FileText, Eye } from "lucide-react";
-import { safetyGuidelines, emergencyContacts } from '@mock/safetyData';
+import { useSafety } from '@/hooks';
 
 interface SafetyCenterProps {
   onBack: () => void;
 }
 
 export default function SafetyCenter({ onBack }: SafetyCenterProps) {
+  const { safetyGuidelines, emergencyContacts, callEmergencyNumber } = useSafety();
+  
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
