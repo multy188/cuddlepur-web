@@ -8,164 +8,126 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { 
   User, 
   Camera, 
   Shield, 
   Edit3, 
-  MapPin, 
-  Calendar,
+  MapPin,
   Phone,
   LogOut,
   CheckCircle,
   AlertCircle,
   Star,
-  Plus,
-  X,
-  Upload,
-  Heart,
-  Home,
-  Clock,
   Briefcase,
-  Eye,
-  Users,
   Badge as BadgeIcon
 } from "lucide-react";
-import femaleProfile from "@assets/generated_images/Professional_profile_photo_f962fff8.png";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUpdateProfile } from "@/hooks/useAuth";
 
 interface ProfileProps {
   onSignOut: () => void;
   onBack?: () => void;
   initialEditMode?: boolean;
+  onApplyProfessional?: () => void;
 }
 
-export default function Profile({ onSignOut, onBack, initialEditMode = false }: ProfileProps) {
+export default function Profile({ onSignOut, onBack, initialEditMode = false, onApplyProfessional }: ProfileProps) {
   const [isEditing, setIsEditing] = useState(initialEditMode);
-  const [profileData, setProfileData] = useState({
-    fullName: "Alex Johnson",
-    email: "alex@example.com", 
-    phone: "+233 24 123 4567",
-    dateOfBirth: "1995-08-15",
-    gender: "Prefer not to say",
-    location: "Accra, Ghana",
-    bio: "Looking for genuine connections and meaningful conversations. I enjoy outdoor activities, reading, and trying new cuisines.",
-    interests: ["Reading", "Outdoor Activities", "Cooking", "Music"],
-    job: "Marketing Specialist",
-    height: "5'7\"",
-    ethnicity: "Prefer not to say",
-    smoking: "No",
-    drinking: "Occasionally", 
-    relationshipStatus: "Single",
-    hostGuestPreference: "Both",
-    isVerified: true,
-    profileImages: [femaleProfile],
-    hourlyRate: 45,
-    availability: {
-      morning: true,
-      afternoon: false, 
-      evening: true
-    },
-    isProfessional: false
+  const { user, updateUser } = useAuth();
+  const updateProfile = useUpdateProfile();
+  
+  const [formData, setFormData] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    bio: user?.bio || '',
+    city: user?.city || '',
+    state: user?.state || '',
+    country: user?.country || '',
+    dateOfBirth: user?.dateOfBirth ? user.dateOfBirth.split('T')[0] : '',
+    gender: user?.gender || '',
+    hourlyRate: user?.hourlyRate || '',
+    services: user?.services || [],
+    experience: user?.experience || '',
+    preferences: user?.preferences || {}
   });
 
-  const [notifications, setNotifications] = useState({
-    messages: true,
-    bookings: true,
-    promotions: false,
-    safetyAlerts: true
-  });
-
-  const [privacy, setPrivacy] = useState({
-    showAge: true,
-    showLocation: true,
-    allowMessages: true,
-    visibleToAll: true
-  });
-
-  // Mock data for reviews
-  const reviews = [
-    {
-      id: "1",
-      reviewer: "Sarah M.",
-      rating: 5,
-      comment: "Alex was wonderful company! Very respectful and great conversation.",
-      date: "2 weeks ago"
-    },
-    {
-      id: "2", 
-      reviewer: "John D.",
-      rating: 4,
-      comment: "Had a lovely afternoon exploring the city. Highly recommend!",
-      date: "3 weeks ago"
+  const handleSave = async () => {
+    try {
+      // Clean the form data before sending
+      const cleanFormData: any = {};
+      
+      // Only include non-empty strings
+      if (formData.firstName?.trim()) cleanFormData.firstName = formData.firstName.trim();
+      if (formData.lastName?.trim()) cleanFormData.lastName = formData.lastName.trim();
+      if (formData.bio?.trim()) cleanFormData.bio = formData.bio.trim();
+      if (formData.city?.trim()) cleanFormData.city = formData.city.trim();
+      if (formData.state?.trim()) cleanFormData.state = formData.state.trim();
+      if (formData.country?.trim()) cleanFormData.country = formData.country.trim();
+      if (formData.experience?.trim()) cleanFormData.experience = formData.experience.trim();
+      
+      // Handle date of birth - convert to ISO string if provided
+      if (formData.dateOfBirth) {
+        cleanFormData.dateOfBirth = new Date(formData.dateOfBirth).toISOString();
+      }
+      
+      // Handle hourly rate - only include if positive number
+      if (formData.hourlyRate && Number(formData.hourlyRate) > 0) {
+        cleanFormData.hourlyRate = Number(formData.hourlyRate);
+      }
+      
+      // Handle arrays
+      if (formData.services && formData.services.length > 0) {
+        cleanFormData.services = formData.services;
+      }
+      
+      // Handle preferences object
+      if (formData.preferences && Object.keys(formData.preferences).length > 0) {
+        cleanFormData.preferences = formData.preferences;
+      }
+      
+      await updateProfile.mutateAsync(cleanFormData);
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error('Failed to update profile:', error);
     }
-  ];
-
-  const averageRating = 4.8;
-  const totalReviews = 23;
-
-  // Location suggestions for Ghanaian cities
-  const locationSuggestions = [
-    "Accra", "Kumasi", "Tamale", "Sekondi-Takoradi", "Ashaiman", "Sunyani",
-    "Cape Coast", "Obuasi", "Teshie", "Tema", "Madina", "Koforidua",
-    "Wa", "Techiman", "Ho", "Nungua", "Lashibi", "Dome", "Gbawe", "Kasoa"
-  ];
-
-  // Available interests/hobbies
-  const availableInterests = [
-    "Reading", "Outdoor Activities", "Cooking", "Music", "Photography", "Art",
-    "Sports", "Gaming", "Travel", "Dancing", "Fitness", "Movies", "Technology",
-    "Fashion", "Meditation", "Volunteering", "Writing", "Languages"
-  ];
-
-  const handleSave = () => {
-    setIsEditing(false);
-    // TODO: Save profile data to backend
-    console.log('Saving profile data:', profileData);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    // TODO: Reset to original data
+    // Reset form data to original user data
+    setFormData({
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      bio: user?.bio || '',
+      city: user?.city || '',
+      state: user?.state || '',
+      country: user?.country || '',
+      dateOfBirth: user?.dateOfBirth ? user.dateOfBirth.split('T')[0] : '',
+      gender: user?.gender || '',
+      hourlyRate: user?.hourlyRate || '',
+      services: user?.services || [],
+      experience: user?.experience || '',
+      preferences: user?.preferences || {}
+    });
   };
 
-  const addInterest = (interest: string) => {
-    if (!profileData.interests.includes(interest)) {
-      setProfileData(prev => ({
-        ...prev,
-        interests: [...prev.interests, interest]
-      }));
-    }
-  };
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
-  const removeInterest = (interestToRemove: string) => {
-    setProfileData(prev => ({
-      ...prev,
-      interests: prev.interests.filter(interest => interest !== interestToRemove)
-    }));
-  };
-
-  const addPhoto = () => {
-    // TODO: Implement photo upload
-    console.log('Adding photo');
-  };
-
-  const removePhoto = (index: number) => {
-    setProfileData(prev => ({
-      ...prev,
-      profileImages: prev.profileImages.filter((_, i) => i !== index)
-    }));
-  };
+  const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
+  const isProfessional = user.userType === 'PROFESSIONAL';
 
   return (
-    <div className="container mx-auto p-4 space-y-6 max-w-4xl">
+    <div className="container mx-auto p-4 space-y-6 max-w-4xl pb-24">
       {/* Profile Header */}
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative">
               <Avatar className="w-24 h-24">
-                <AvatarImage src={profileData.profileImages[0]} alt="Profile" />
+                <AvatarImage src={user.profilePicture || ''} alt="Profile" />
                 <AvatarFallback>
                   <User className="w-12 h-12" />
                 </AvatarFallback>
@@ -175,7 +137,7 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
                   size="icon"
                   variant="outline"
                   className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
-                  onClick={addPhoto}
+                  onClick={() => console.log('Photo upload coming soon')}
                   data-testid="button-edit-photo"
                 >
                   <Camera className="w-4 h-4" />
@@ -186,15 +148,15 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                 <h2 className="text-2xl font-bold" data-testid="text-profile-name">
-                  {profileData.fullName}
+                  {fullName}
                 </h2>
-                {profileData.isVerified && (
+                {user.isVerified && (
                   <Badge variant="secondary" className="gap-1" data-testid="badge-verified">
                     <CheckCircle className="w-3 h-3" />
                     Verified
                   </Badge>
                 )}
-                {profileData.isProfessional && (
+                {isProfessional && (
                   <Badge className="gap-1" data-testid="badge-professional">
                     <Star className="w-3 h-3" />
                     Professional
@@ -203,17 +165,11 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
               </div>
               <div className="flex items-center gap-1 text-muted-foreground justify-center sm:justify-start mt-1">
                 <MapPin className="w-4 h-4" />
-                <span data-testid="text-location">{profileData.location}</span>
+                <span data-testid="text-location">{user.city || 'Location not set'}</span>
               </div>
-              {profileData.isProfessional && (
+              {isProfessional && user.hourlyRate && (
                 <div className="flex items-center gap-2 justify-center sm:justify-start mt-2">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="font-semibold">{averageRating}</span>
-                    <span className="text-muted-foreground">({totalReviews} reviews)</span>
-                  </div>
-                  <span className="text-muted-foreground">•</span>
-                  <span className="font-semibold">${profileData.hourlyRate}/hour</span>
+                  <span className="font-semibold">${user.hourlyRate}/hour</span>
                 </div>
               )}
               <div className="flex gap-2 mt-4 justify-center sm:justify-start flex-wrap">
@@ -230,8 +186,12 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
                     Save Changes
                   </Button>
                 )}
-                {!profileData.isProfessional && !isEditing && (
-                  <Button variant="outline" data-testid="button-apply-professional">
+                {!isProfessional && !isEditing && (
+                  <Button 
+                    variant="outline" 
+                    data-testid="button-apply-professional"
+                    onClick={onApplyProfessional}
+                  >
                     <BadgeIcon className="w-4 h-4 mr-2" />
                     Apply to be a Professional
                   </Button>
@@ -242,50 +202,27 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
         </CardContent>
       </Card>
 
-      {/* Photo Gallery */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Camera className="w-5 h-5" />
-            Photos ({profileData.profileImages.length}/10)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {profileData.profileImages.map((image, index) => (
-              <div key={index} className="relative group">
-                <img
-                  src={image}
-                  alt={`Profile ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-lg"
-                  data-testid={`image-profile-${index}`}
-                />
-                {isEditing && profileData.profileImages.length > 1 && (
-                  <Button
-                    size="icon"
-                    variant="destructive"
-                    className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => removePhoto(index)}
-                    data-testid={`button-remove-photo-${index}`}
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            {isEditing && profileData.profileImages.length < 10 && (
-              <Button
-                variant="outline"
-                className="h-24 w-full border-dashed"
-                onClick={addPhoto}
-                data-testid="button-add-photo"
-              >
-                <Plus className="w-6 h-6" />
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Profile Picture Section */}
+      {user.profilePicture && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Camera className="w-5 h-5" />
+              Profile Picture
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <img
+                src={user.profilePicture}
+                alt="Profile"
+                className="w-32 h-32 object-cover rounded-lg"
+                data-testid="profile-picture"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* About You Section */}
@@ -301,313 +238,146 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
-                value={profileData.bio}
+                value={isEditing ? formData.bio : (user.bio || 'No bio added yet')}
                 disabled={!isEditing}
-                onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                 placeholder="Tell others about yourself..."
                 rows={4}
                 maxLength={500}
                 data-testid="textarea-bio"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                {profileData.bio.length}/500 characters
-              </p>
+              {isEditing && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {formData.bio.length}/500 characters
+                </p>
+              )}
             </div>
 
+
             <div>
-              <Label htmlFor="job">Job/Occupation</Label>
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
               <Input
-                id="job"
-                value={profileData.job}
+                id="dateOfBirth"
+                type={isEditing ? "date" : "text"}
+                value={isEditing ? formData.dateOfBirth : (user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'Not provided')}
                 disabled={!isEditing}
-                onChange={(e) => setProfileData(prev => ({ ...prev, job: e.target.value }))}
-                placeholder="e.g. Marketing Specialist"
-                data-testid="input-job"
+                onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                data-testid="input-date-of-birth"
               />
             </div>
 
             <div>
-              <Label>Interests & Hobbies</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {profileData.interests.map((interest, index) => (
-                  <Badge key={index} variant="outline" className="gap-1" data-testid={`badge-interest-${index}`}>
-                    {interest}
-                    {isEditing && (
-                      <button
-                        onClick={() => removeInterest(interest)}
-                        className="ml-1 hover:text-destructive"
-                        data-testid={`button-remove-interest-${index}`}
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    )}
-                  </Badge>
-                ))}
-              </div>
-              {isEditing && (
-                <div className="mt-3">
-                  <Label>Add Interests</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {availableInterests
-                      .filter(interest => !profileData.interests.includes(interest))
-                      .map((interest, index) => (
-                        <Button
-                          key={index}
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 text-xs"
-                          onClick={() => addInterest(interest)}
-                          data-testid={`button-add-interest-${interest.toLowerCase().replace(' ', '-')}`}
-                        >
-                          + {interest}
-                        </Button>
-                      ))}
+              <Label htmlFor="gender">Gender</Label>
+              <Input
+                id="gender"
+                value={user.gender || 'Not specified'}
+                disabled
+                data-testid="input-gender"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Contact Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Phone className="w-5 h-5" />
+              Contact Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                id="phoneNumber"
+                value={user.phoneNumber}
+                disabled
+                data-testid="input-phone-number"
+              />
+            </div>
+
+          </CardContent>
+        </Card>
+
+        {/* Services (for professionals) */}
+        {isProfessional && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5" />
+                Services Offered
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {user.services && user.services.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {user.services.map((service, index) => (
+                      <Badge key={index} variant="outline" data-testid={`badge-service-${index}`}>
+                        {service}
+                      </Badge>
+                    ))}
                   </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                ) : (
+                  <p className="text-muted-foreground">No services listed</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Appearance Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              Appearance
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="height">Height</Label>
-              {isEditing ? (
-                <Select value={profileData.height} onValueChange={(value) => setProfileData(prev => ({ ...prev, height: value }))}>
-                  <SelectTrigger data-testid="select-height">
-                    <SelectValue placeholder="Select height" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={'4\'10"'}>4'10"</SelectItem>
-                    <SelectItem value={'4\'11"'}>4'11"</SelectItem>
-                    <SelectItem value={'5\'0"'}>5'0"</SelectItem>
-                    <SelectItem value={'5\'1"'}>5'1"</SelectItem>
-                    <SelectItem value={'5\'2"'}>5'2"</SelectItem>
-                    <SelectItem value={'5\'3"'}>5'3"</SelectItem>
-                    <SelectItem value={'5\'4"'}>5'4"</SelectItem>
-                    <SelectItem value={'5\'5"'}>5'5"</SelectItem>
-                    <SelectItem value={'5\'6"'}>5'6"</SelectItem>
-                    <SelectItem value={'5\'7"'}>5'7"</SelectItem>
-                    <SelectItem value={'5\'8"'}>5'8"</SelectItem>
-                    <SelectItem value={'5\'9"'}>5'9"</SelectItem>
-                    <SelectItem value={'5\'10"'}>5'10"</SelectItem>
-                    <SelectItem value={'5\'11"'}>5'11"</SelectItem>
-                    <SelectItem value={'6\'0"'}>6'0"</SelectItem>
-                    <SelectItem value={'6\'1"'}>6'1"</SelectItem>
-                    <SelectItem value={'6\'2"'}>6'2"</SelectItem>
-                    <SelectItem value={'6\'3"'}>6'3"</SelectItem>
-                    <SelectItem value={'6\'4"'}>6'4"</SelectItem>
-                    <SelectItem value={'6\'5"'}>6'5"</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input value={profileData.height} disabled data-testid="input-height" />
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="ethnicity">Ethnicity</Label>
-              {isEditing ? (
-                <Select value={profileData.ethnicity} onValueChange={(value) => setProfileData(prev => ({ ...prev, ethnicity: value }))}>
-                  <SelectTrigger data-testid="select-ethnicity">
-                    <SelectValue placeholder="Select ethnicity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="African">African</SelectItem>
-                    <SelectItem value="European">European</SelectItem>
-                    <SelectItem value="Asian">Asian</SelectItem>
-                    <SelectItem value="Mixed/Multiracial">Mixed/Multiracial</SelectItem>
-                    <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input value={profileData.ethnicity} disabled data-testid="input-ethnicity" />
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Lifestyle Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="w-5 h-5" />
-              Lifestyle
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="smoking">Smoking</Label>
-              {isEditing ? (
-                <Select value={profileData.smoking} onValueChange={(value) => setProfileData(prev => ({ ...prev, smoking: value }))}>
-                  <SelectTrigger data-testid="select-smoking">
-                    <SelectValue placeholder="Select smoking preference" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Yes">Yes</SelectItem>
-                    <SelectItem value="No">No</SelectItem>
-                    <SelectItem value="Occasionally">Occasionally</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input value={profileData.smoking} disabled data-testid="input-smoking" />
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="drinking">Drinking</Label>
-              {isEditing ? (
-                <Select value={profileData.drinking} onValueChange={(value) => setProfileData(prev => ({ ...prev, drinking: value }))}>
-                  <SelectTrigger data-testid="select-drinking">
-                    <SelectValue placeholder="Select drinking preference" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Yes">Yes</SelectItem>
-                    <SelectItem value="No">No</SelectItem>
-                    <SelectItem value="Occasionally">Occasionally</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input value={profileData.drinking} disabled data-testid="input-drinking" />
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="relationshipStatus">Relationship Status</Label>
-              {isEditing ? (
-                <Select value={profileData.relationshipStatus} onValueChange={(value) => setProfileData(prev => ({ ...prev, relationshipStatus: value }))}>
-                  <SelectTrigger data-testid="select-relationship-status">
-                    <SelectValue placeholder="Select relationship status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Single">Single</SelectItem>
-                    <SelectItem value="Married">Married</SelectItem>
-                    <SelectItem value="In a relationship">In a relationship</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input value={profileData.relationshipStatus} disabled data-testid="input-relationship-status" />
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Location & Preferences */}
+        {/* Location Information */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="w-5 h-5" />
-              Location & Preferences
+              Location
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="location">Primary Location</Label>
-              {isEditing ? (
-                <Select value={profileData.location} onValueChange={(value) => setProfileData(prev => ({ ...prev, location: value }))}>
-                  <SelectTrigger data-testid="select-location">
-                    <SelectValue placeholder="Select city" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locationSuggestions.map((city) => (
-                      <SelectItem key={city} value={city}>{city}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input value={profileData.location} disabled data-testid="input-location" />
-              )}
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={isEditing ? formData.city : (user.city || 'Not provided')}
+                disabled={!isEditing}
+                onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                placeholder="Your city"
+                data-testid="input-city"
+              />
             </div>
 
             <div>
-              <Label htmlFor="hostGuestPreference">Host/Guest Preference</Label>
-              {isEditing ? (
-                <Select value={profileData.hostGuestPreference} onValueChange={(value) => setProfileData(prev => ({ ...prev, hostGuestPreference: value }))}>
-                  <SelectTrigger data-testid="select-host-guest-preference">
-                    <SelectValue placeholder="Select preference" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Host">Host (I prefer hosting)</SelectItem>
-                    <SelectItem value="Guest">Guest (I prefer visiting)</SelectItem>
-                    <SelectItem value="Both">Both (I'm flexible)</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input value={profileData.hostGuestPreference} disabled data-testid="input-host-guest-preference" />
-              )}
+              <Label htmlFor="state">State</Label>
+              <Input
+                id="state"
+                value={isEditing ? formData.state : (user.state || 'Not provided')}
+                disabled={!isEditing}
+                onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
+                placeholder="Your state"
+                data-testid="input-state"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="country">Country</Label>
+              <Input
+                id="country"
+                value={isEditing ? formData.country : (user.country || 'Not provided')}
+                disabled={!isEditing}
+                onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                placeholder="Your country"
+                data-testid="input-country"
+              />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Availability (if editing) */}
-      {isEditing && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              Availability
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="morning"
-                  checked={profileData.availability.morning}
-                  onCheckedChange={(checked) => 
-                    setProfileData(prev => ({
-                      ...prev,
-                      availability: { ...prev.availability, morning: !!checked }
-                    }))
-                  }
-                  data-testid="checkbox-morning"
-                />
-                <Label htmlFor="morning">Morning (6AM - 12PM)</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="afternoon"
-                  checked={profileData.availability.afternoon}
-                  onCheckedChange={(checked) => 
-                    setProfileData(prev => ({
-                      ...prev,
-                      availability: { ...prev.availability, afternoon: !!checked }
-                    }))
-                  }
-                  data-testid="checkbox-afternoon"
-                />
-                <Label htmlFor="afternoon">Afternoon (12PM - 6PM)</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="evening"
-                  checked={profileData.availability.evening}
-                  onCheckedChange={(checked) => 
-                    setProfileData(prev => ({
-                      ...prev,
-                      availability: { ...prev.availability, evening: !!checked }
-                    }))
-                  }
-                  data-testid="checkbox-evening"
-                />
-                <Label htmlFor="evening">Evening (6PM - 12AM)</Label>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Professional Settings (if professional and editing) */}
-      {profileData.isProfessional && isEditing && (
+      {isProfessional && isEditing && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -621,10 +391,11 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
               <Input
                 id="hourlyRate"
                 type="number"
-                value={profileData.hourlyRate}
-                onChange={(e) => setProfileData(prev => ({ ...prev, hourlyRate: parseInt(e.target.value) || 0 }))}
+                value={formData.hourlyRate}
+                onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value ? parseInt(e.target.value) : '' }))}
                 placeholder="45"
                 data-testid="input-hourly-rate"
+                min="1"
               />
             </div>
           </CardContent>
@@ -632,7 +403,7 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
       )}
 
       {/* Reviews & Ratings (if professional) */}
-      {profileData.isProfessional && (
+      {isProfessional && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -641,44 +412,91 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-6 mb-6">
               <div className="text-center">
-                <div className="text-3xl font-bold">{averageRating}</div>
-                <div className="flex items-center gap-1 justify-center">
+                <div className="text-4xl font-bold">0.0</div>
+                <div className="flex items-center gap-1 justify-center mb-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-4 h-4 ${
-                        star <= averageRating ? 'text-yellow-500 fill-current' : 'text-gray-300'
-                      }`}
+                      className="w-5 h-5 text-gray-300"
                     />
                   ))}
                 </div>
-                <div className="text-sm text-muted-foreground">{totalReviews} reviews</div>
+                <div className="text-sm text-muted-foreground">No reviews yet</div>
+              </div>
+              
+              <div className="flex-1 space-y-2">
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <div key={rating} className="flex items-center gap-2">
+                    <span className="text-sm w-4">{rating}</span>
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <div className="flex-1 bg-gray-200 rounded-full h-2">
+                      <div className="bg-yellow-500 h-2 rounded-full w-0"></div>
+                    </div>
+                    <span className="text-sm text-muted-foreground w-8">0</span>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="space-y-4">
-              {reviews.map((review) => (
-                <div key={review.id} className="border-b pb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{review.reviewer}</span>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-3 h-3 ${
-                              star <= review.rating ? 'text-yellow-500 fill-current' : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
+            
+            <div className="border-t pt-6">
+              <h4 className="font-semibold mb-4">Recent Reviews</h4>
+              
+              {/* This would be replaced with actual reviews from API */}
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Star className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">No reviews yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Complete your first booking to start receiving reviews from clients!
+                </p>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                  <h4 className="font-medium text-blue-900 mb-2">Tips for great reviews:</h4>
+                  <ul className="text-sm text-blue-800 space-y-1 text-left">
+                    <li>• Be punctual and professional</li>
+                    <li>• Communicate clearly with clients</li>
+                    <li>• Provide excellent service quality</li>
+                    <li>• Follow safety guidelines</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* When reviews exist, they would appear here like this: */}
+              {/* 
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div key={review.id} className="border-b pb-4 last:border-b-0">
+                    <div className="flex items-start gap-3">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={review.reviewer.profilePicture} alt={review.reviewer.name} />
+                        <AvatarFallback>{review.reviewer.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="font-medium">{review.reviewer.name}</p>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`w-4 h-4 ${
+                                    star <= review.rating ? 'text-yellow-500 fill-current' : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <span className="text-sm text-muted-foreground">{review.date}</span>
+                        </div>
+                        <p className="text-sm text-gray-700">{review.comment}</p>
                       </div>
                     </div>
-                    <span className="text-sm text-muted-foreground">{review.date}</span>
                   </div>
-                  <p className="text-sm">{review.comment}</p>
-                </div>
-              ))}
+                ))}
+              </div>
+              */}
             </div>
           </CardContent>
         </Card>
@@ -695,13 +513,21 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false }: 
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
+              {user.isIdVerified ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-yellow-500" />
+              )}
               <div>
-                <p className="font-medium">Identity Verified</p>
-                <p className="text-sm text-muted-foreground">Government ID confirmed</p>
+                <p className="font-medium">Identity Verification</p>
+                <p className="text-sm text-muted-foreground">
+                  {user.isIdVerified ? 'Government ID confirmed' : 'ID verification pending'}
+                </p>
               </div>
             </div>
-            <Badge variant="secondary" data-testid="badge-id-verified">Verified</Badge>
+            <Badge variant={user.isIdVerified ? "secondary" : "outline"} data-testid="badge-id-verified">
+              {user.isIdVerified ? 'Verified' : 'Pending'}
+            </Badge>
           </div>
           
           <div className="flex items-center justify-between">

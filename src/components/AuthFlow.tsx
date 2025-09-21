@@ -6,9 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Shield, Phone, CheckCircle, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, Shield, Phone, CheckCircle, AlertCircle, Upload, X, ImagePlus, Loader2 } from "lucide-react";
+import CountryCodeSelect from "./CountryCodeSelect";
 
-type AuthStep = "phone" | "otp" | "basicInfo" | "verification" | "pending" | "failed";
+type AuthStep = "phone" | "otp" | "basicInfo" | "photoUpload" | "complete";
 
 interface AuthFlowProps {
   onComplete: () => void;
@@ -41,67 +43,225 @@ export default function AuthFlow({ onComplete, onBack, onNavigateTerms, onNaviga
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const stepProgress = {
-    phone: 20,
-    otp: 40,
-    basicInfo: 60,
-    verification: 80,
-    pending: 100,
-    failed: 80
+    phone: 25,
+    otp: 50,
+    basicInfo: 75,
+    photoUpload: 100,
+    complete: 100
   };
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Send OTP
-    console.log('Sending OTP to:', countryCode + phoneNumber);
-    setCurrentStep("otp");
-    setResendTimer(60);
+    setError("");
+    setIsLoading(true);
     
-    // Simulate timer countdown
-    const timer = setInterval(() => {
-      setResendTimer(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
+    // Client-side validation
+    if (phoneNumber.length < 7) {
+      setError("Phone number must be at least 7 digits long.");
+      setIsLoading(false);
+      return;
+    }
+    
+    if (phoneNumber.length > 15) {
+      setError("Phone number cannot be longer than 15 digits.");
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!/^\d+$/.test(phoneNumber)) {
+      setError("Phone number must contain only digits.");
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/send-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ phoneNumber: countryCode + phoneNumber })
       });
-    }, 1000);
+
+      if (!response.ok) {
+        let errorMessage = 'Unable to send verification code';
+        
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.message || errorMessage;
+        } catch (e) {
+          // If response is not JSON, use status-based messages
+          if (response.status === 429) {
+            errorMessage = 'Too many attempts. Please try again in a few minutes.';
+          } else if (response.status === 400) {
+            errorMessage = 'Please check your phone number and try again.';
+          } else if (response.status >= 500) {
+            errorMessage = 'Our servers are experiencing issues. Please try again shortly.';
+          } else {
+            errorMessage = 'Unable to send verification code. Please try again.';
+          }
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      console.log('OTP sent to:', countryCode + phoneNumber);
+      setCurrentStep("otp");
+      setResendTimer(60);
+      
+      // Start timer countdown
+      const timer = setInterval(() => {
+        setResendTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (error: any) {
+      // Handle network errors and fetch failures
+      if (error.name === 'TypeError' || error.message === 'Failed to fetch') {
+        setError('Please check your internet connection and try again.');
+      } else {
+        setError(error.message || 'Unable to send verification code. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleOtpSubmit = (e: React.FormEvent) => {
+  const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Verify OTP
-    console.log('Verifying OTP:', otpCode);
-    setCurrentStep("basicInfo");
+    setError("");
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/verify-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          phoneNumber: countryCode + phoneNumber,
+          code: otpCode 
+        })
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to verify code';
+        
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.message || errorMessage;
+        } catch (e) {
+          if (response.status === 400) {
+            errorMessage = 'The verification code is invalid or has expired. Please try again.';
+          } else if (response.status === 429) {
+            errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
+          } else if (response.status >= 500) {
+            errorMessage = 'Our servers are experiencing issues. Please try again shortly.';
+          } else {
+            errorMessage = 'Unable to verify code. Please try again.';
+          }
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      
+      // Store token and user data
+      if (data.token) {
+        localStorage.setItem('cuddlepur_token', data.token);
+      }
+      
+      console.log('OTP verified successfully');
+      setCurrentStep("basicInfo");
+    } catch (error: any) {
+      // Handle network errors and fetch failures
+      if (error.name === 'TypeError' || error.message === 'Failed to fetch') {
+        setError('Please check your internet connection and try again.');
+      } else {
+        setError(error.message || 'Unable to verify code. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setError("");
+    
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/send-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ phoneNumber: countryCode + phoneNumber })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to resend code');
+      }
+
+      setResendTimer(60);
+      
+      // Start timer countdown
+      const timer = setInterval(() => {
+        setResendTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (error: any) {
+      // Handle network errors and fetch failures
+      if (error.name === 'TypeError' || error.message === 'Failed to fetch') {
+        setError('Please check your internet connection and try again.');
+      } else {
+        setError('Unable to resend code. Please try again.');
+      }
+    }
   };
 
   const handleBasicInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Save basic info
     console.log('Saving basic info:', userInfo);
-    setCurrentStep("verification");
+    setCurrentStep("photoUpload");
   };
 
-  const handleVerificationSubmit = () => {
-    // TODO: Submit for verification
-    console.log('Submitting for verification');
-    setCurrentStep("pending");
-    
-    // TODO: Poll for verification status
-    // Simulate verification failure for demo (in real app, this would come from backend)
-    setTimeout(() => {
-      // Simulate random success/failure for demo
-      const isSuccess = Math.random() > 0.7; // 30% success rate for demo
+  const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
+
+  const handlePhotoUpload = (files: FileList | null) => {
+    if (files) {
+      const newPhotos = Array.from(files);
+      const totalPhotos = uploadedPhotos.length + newPhotos.length;
       
-      if (isSuccess) {
-        onComplete();
-      } else {
-        setCurrentStep("failed");
-        if (onVerificationFailed) {
-          onVerificationFailed();
-        }
+      if (totalPhotos > 10) {
+        alert('You can upload a maximum of 10 photos');
+        return;
       }
-    }, 3000);
+      
+      setUploadedPhotos(prev => [...prev, ...newPhotos].slice(0, 10));
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setUploadedPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handlePhotoSubmit = () => {
+    // TODO: Upload photos to S3
+    console.log('Uploading photos:', uploadedPhotos);
+    onComplete();
   };
 
   const renderPhoneStep = () => (
@@ -115,30 +275,53 @@ export default function AuthFlow({ onComplete, onBack, onNavigateTerms, onNaviga
       </div>
 
       <form onSubmit={handlePhoneSubmit} className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
         <div className="flex gap-2">
-          <Select value={countryCode} onValueChange={setCountryCode}>
-            <SelectTrigger className="w-20" data-testid="select-country-code">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="+233">🇬🇭 +233</SelectItem>
-              <SelectItem value="+1">🇺🇸 +1</SelectItem>
-              <SelectItem value="+44">🇬🇧 +44</SelectItem>
-            </SelectContent>
-          </Select>
+          <CountryCodeSelect 
+            value={countryCode} 
+            onValueChange={setCountryCode}
+            disabled={isLoading}
+          />
           
           <Input
             placeholder="Phone number"
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={(e) => {
+              // Only allow numbers and limit to 15 digits (international standard)
+              const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+              setPhoneNumber(value);
+            }}
             className="flex-1"
             data-testid="input-phone"
             required
+            disabled={isLoading}
+            type="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={15}
           />
         </div>
 
-        <Button type="submit" className="w-full" data-testid="button-send-code">
-          Send Verification Code
+        <Button 
+          type="submit" 
+          className="w-full" 
+          data-testid="button-send-code"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Sending Code...
+            </>
+          ) : (
+            'Send Verification Code'
+          )}
         </Button>
       </form>
 
@@ -174,6 +357,13 @@ export default function AuthFlow({ onComplete, onBack, onNavigateTerms, onNaviga
       </div>
 
       <form onSubmit={handleOtpSubmit} className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
         <Input
           placeholder="6-digit code"
           value={otpCode}
@@ -182,15 +372,23 @@ export default function AuthFlow({ onComplete, onBack, onNavigateTerms, onNaviga
           className="text-center text-lg tracking-wider"
           data-testid="input-otp"
           required
+          disabled={isLoading}
         />
 
         <Button 
           type="submit" 
           className="w-full" 
-          disabled={otpCode.length !== 6}
+          disabled={otpCode.length !== 6 || isLoading}
           data-testid="button-verify-code"
         >
-          Verify Code
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Verifying...
+            </>
+          ) : (
+            'Verify Code'
+          )}
         </Button>
       </form>
 
@@ -200,7 +398,12 @@ export default function AuthFlow({ onComplete, onBack, onNavigateTerms, onNaviga
             Resend code in {resendTimer}s
           </p>
         ) : (
-          <Button variant="ghost" size="sm" data-testid="button-resend">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            data-testid="button-resend"
+            onClick={handleResendCode}
+          >
             Resend Code
           </Button>
         )}
@@ -315,63 +518,80 @@ export default function AuthFlow({ onComplete, onBack, onNavigateTerms, onNaviga
     </Card>
   );
 
-  const renderVerificationStep = () => (
+  const renderPhotoUploadStep = () => (
     <Card className="p-6 max-w-md mx-auto">
       <div className="text-center mb-6">
-        <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Identity Verification</h2>
+        <ImagePlus className="h-12 w-12 text-primary mx-auto mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Add Your Photos (Optional)</h2>
         <p className="text-muted-foreground">
-          Upload a government ID for account verification
+          Upload up to 10 photos to complete your profile
         </p>
       </div>
 
       <div className="space-y-4">
-        <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
-            Accepted documents: Ghana Card, Passport, Driver's License
+        {/* Photo upload area */}
+        <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center relative">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => handlePhotoUpload(e.target.files)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            data-testid="input-photo-upload"
+          />
+          <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm font-medium">Drop photos here or click to browse</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {uploadedPhotos.length}/10 photos uploaded
           </p>
-          <Button variant="outline" data-testid="button-upload-id">
-            Upload ID Document
-          </Button>
         </div>
 
-        <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
-            Take a selfie matching your ID photo
-          </p>
-          <Button variant="outline" data-testid="button-take-selfie">
-            Take Selfie
+        {/* Preview uploaded photos */}
+        {uploadedPhotos.length > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {uploadedPhotos.map((photo, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt={`Photo ${index + 1}`}
+                  className="w-full h-24 object-cover rounded-md"
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removePhoto(index)}
+                  data-testid={`button-remove-photo-${index}`}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onComplete()} 
+            className="flex-1"
+            data-testid="button-skip-photos"
+          >
+            Skip for now
+          </Button>
+          <Button 
+            onClick={handlePhotoSubmit} 
+            className="flex-1"
+            disabled={uploadedPhotos.length === 0}
+            data-testid="button-upload-photos"
+          >
+            Upload Photos
           </Button>
         </div>
-
-        <Button 
-          onClick={handleVerificationSubmit} 
-          className="w-full"
-          data-testid="button-submit-verification"
-        >
-          Submit for Verification
-        </Button>
       </div>
     </Card>
   );
 
-  const renderPendingStep = () => (
-    <Card className="p-6 max-w-md mx-auto text-center">
-      <CheckCircle className="h-16 w-16 text-chart-1 mx-auto mb-4" />
-      <h2 className="text-2xl font-bold mb-2">Verification Submitted</h2>
-      <p className="text-muted-foreground mb-6">
-        Review typically takes 24-48 hours. You can browse professionals while waiting.
-      </p>
-      
-      <Badge variant="secondary" className="mb-4">
-        Verification in progress
-      </Badge>
-      
-      <Button onClick={onComplete} className="w-full" data-testid="button-continue-app">
-        Continue to App
-      </Button>
-    </Card>
-  );
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -399,8 +619,7 @@ export default function AuthFlow({ onComplete, onBack, onNavigateTerms, onNaviga
         {currentStep === "phone" && renderPhoneStep()}
         {currentStep === "otp" && renderOtpStep()}
         {currentStep === "basicInfo" && renderBasicInfoStep()}
-        {currentStep === "verification" && renderVerificationStep()}
-        {currentStep === "pending" && renderPendingStep()}
+        {currentStep === "photoUpload" && renderPhotoUploadStep()}
       </div>
     </div>
   );

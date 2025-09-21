@@ -12,6 +12,34 @@ export interface Availability {
   evening: boolean;
 }
 
+export interface ProfileData {
+  fullName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  gender: string;
+  location: string;
+  bio: string;
+  interests: string[];
+  job: string;
+  height: string;
+  ethnicity: string;
+  smoking: string;
+  drinking: string;
+  relationshipStatus: string;
+  hostGuestPreference: string;
+  isVerified: boolean;
+  profileImages: string[];
+  hourlyRate: number;
+  availability: Availability;
+  isProfessional: boolean;
+}
+
+export interface RatingData {
+  averageRating: number;
+  totalReviews: number;
+}
+
 export interface Professional {
   id: string;
   name: string;

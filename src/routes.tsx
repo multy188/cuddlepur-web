@@ -1,9 +1,11 @@
 import { Route, Switch, Redirect } from "wouter";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "./contexts/AuthContext";
 
 // Components
 import SearchPage from "@/components/SearchPage";
+import BasicInfoForm from "@/components/BasicInfoForm";
 
 // Pages
 import HowItWorks from "@/pages/HowItWorks";
@@ -22,10 +24,14 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import UserVerificationQueue from "@/pages/UserVerificationQueue";
 import ContentModeration from "@/pages/ContentModeration";
 import SafetyReportsManagement from "@/pages/SafetyReportsManagement";
+import IdVerificationFailed from "@/pages/IdVerificationFailed";
 
 // Wrapper components
 import WelcomeWrapper from "@/wrappers/WelcomeWrapper";
 import AuthWrapper from "@/wrappers/AuthWrapper";
+import BasicInfoWrapper from "@/wrappers/BasicInfoWrapper";
+import PhotoUploadWrapper from "@/wrappers/PhotoUploadWrapper";
+import IdVerificationWrapper from "@/wrappers/IdVerificationWrapper";
 import DashboardWrapper from "@/wrappers/DashboardWrapper";
 import MessagesWrapper from "@/wrappers/MessagesWrapper";
 import ProfileWrapper from "@/wrappers/ProfileWrapper";
@@ -42,18 +48,28 @@ const LoadingSpinner = () => (
   </div>
 );
 
-interface RoutesProps {
-  isAuthenticated: boolean;
-  onAuthComplete: () => void;
-}
+export function Routes() {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
-export function Routes({ isAuthenticated, onAuthComplete }: RoutesProps) {
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // Handle account status redirects
+  if (isAuthenticated && user) {
+    if (user.status === 'SUSPENDED') {
+      return <AccountSuspended />;
+    }
+    if (user.status === 'BANNED') {
+      return <PermanentBan />;
+    }
+  }
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Switch>
         {/* Public routes */}
         <Route path="/" component={WelcomeWrapper} />
-        <Route path="/auth" component={() => <AuthWrapper onAuthComplete={onAuthComplete} />} />
+        <Route path="/auth" component={AuthWrapper} />
         <Route path="/how-it-works" component={() => <HowItWorks onBack={() => window.history.back()} />} />
         <Route path="/faq" component={() => <FAQ onBack={() => window.history.back()} />} />
         <Route path="/terms" component={() => <TermsOfService onBack={() => window.history.back()} />} />
@@ -62,6 +78,11 @@ export function Routes({ isAuthenticated, onAuthComplete }: RoutesProps) {
         {/* Protected routes */}
         {isAuthenticated ? (
           <>
+            {/* Setup routes - onboarding flow */}
+            <Route path="/setup/basic-info" component={BasicInfoWrapper} />
+            <Route path="/setup/photo-upload" component={PhotoUploadWrapper} />
+            <Route path="/setup/id-verification" component={IdVerificationWrapper} />
+            
             <Route path="/dashboard" component={DashboardWrapper} />
             <Route path="/search" component={() => <SearchPage />} />
             <Route path="/bookings" component={BookingPageWrapper} />
@@ -116,6 +137,7 @@ export function Routes({ isAuthenticated, onAuthComplete }: RoutesProps) {
             <Route path="/account/suspended" component={() => <AccountSuspended />} />
             <Route path="/account/banned" component={() => <PermanentBan />} />
             <Route path="/account/age-verification-failed" component={() => <AgeVerificationFailed />} />
+            <Route path="/account/id-verification-failed" component={() => <IdVerificationFailed />} />
             
             {/* Default redirect for authenticated users */}
             <Route path="/:rest*">{() => <Redirect to="/dashboard" />}</Route>

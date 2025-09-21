@@ -430,24 +430,37 @@ export default function WelcomeScreen({ onGetStarted, onSignIn, onNavigate, isAu
 
         {/* Call to Action */}
         <div className="text-center space-y-4 max-w-md mx-auto">
-          <Button 
-            size="lg" 
-            className="w-full"
-            onClick={onGetStarted}
-            data-testid="button-get-started"
-          >
-            Get Started
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="w-full"
-            onClick={onSignIn}
-            data-testid="button-sign-in"
-          >
-            Sign In
-          </Button>
+          {isAuthenticated ? (
+            <Button 
+              size="lg" 
+              className="w-full"
+              onClick={onGoToApp}
+              data-testid="button-go-to-app"
+            >
+              Go to App
+            </Button>
+          ) : (
+            <>
+              <Button 
+                size="lg" 
+                className="w-full"
+                onClick={onGetStarted}
+                data-testid="button-get-started"
+              >
+                Get Started
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full"
+                onClick={onSignIn}
+                data-testid="button-sign-in"
+              >
+                Sign In
+              </Button>
+            </>
+          )}
           
           <div className="flex items-center justify-center mt-6">
             <Badge variant="secondary" className="text-xs">
