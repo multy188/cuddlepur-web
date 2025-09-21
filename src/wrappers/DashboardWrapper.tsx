@@ -15,9 +15,17 @@ export default function DashboardWrapper() {
         return;
       }
 
-      // Check if user has completed basic info
-      if (!user.firstName || !user.lastName || !user.dateOfBirth) {
-        setLocation("/setup/basic-info");
+      // Check if user has completed all required registration steps
+      const hasBasicInfo = user.firstName && user.lastName && user.dateOfBirth && user.city;
+      const hasPreferences = user.preferences?.whatFriendsSay && 
+                            user.preferences?.drinking && 
+                            user.preferences?.smoking && 
+                            user.preferences?.married && 
+                            user.preferences?.occupation;
+      
+      if (!hasBasicInfo || !hasPreferences) {
+        // User hasn't completed registration, send them back to auth flow
+        setLocation("/auth");
         return;
       }
     }

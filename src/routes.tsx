@@ -55,6 +55,23 @@ export function Routes() {
     return <LoadingSpinner />;
   }
 
+  // Check if user has completed all required registration steps
+  const isRegistrationComplete = (user: any) => {
+    if (!user) return false;
+    
+    // Check basic info
+    const hasBasicInfo = user.firstName && user.lastName && user.dateOfBirth && user.city;
+    
+    // Check preferences
+    const hasPreferences = user.preferences?.whatFriendsSay && 
+                          user.preferences?.drinking && 
+                          user.preferences?.smoking && 
+                          user.preferences?.married && 
+                          user.preferences?.occupation;
+    
+    return hasBasicInfo && hasPreferences;
+  };
+
   // Handle account status redirects
   if (isAuthenticated && user) {
     if (user.status === 'SUSPENDED') {
@@ -67,80 +84,86 @@ export function Routes() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Switch>
-        {/* Public routes */}
+        {/* Public routes - always accessible */}
         <Route path="/" component={WelcomeWrapper} />
         <Route path="/auth" component={AuthWrapper} />
         <Route path="/how-it-works" component={() => <HowItWorks onBack={() => window.history.back()} />} />
         <Route path="/faq" component={() => <FAQ onBack={() => window.history.back()} />} />
         <Route path="/terms" component={() => <TermsOfService onBack={() => window.history.back()} />} />
         <Route path="/privacy" component={() => <PrivacyPolicy onBack={() => window.history.back()} />} />
+        <Route path="/safety-center" component={() => <SafetyCenter onBack={() => window.history.back()} />} />
+        <Route path="/help" component={() => <HelpSupport onBack={() => window.history.back()} />} />
         
         {/* Protected routes */}
         {isAuthenticated ? (
           <>
-            {/* Setup routes - onboarding flow */}
-            <Route path="/setup/basic-info" component={BasicInfoWrapper} />
-            <Route path="/setup/photo-upload" component={PhotoUploadWrapper} />
-            <Route path="/setup/id-verification" component={IdVerificationWrapper} />
-            
-            <Route path="/dashboard" component={DashboardWrapper} />
-            <Route path="/search" component={() => <SearchPage />} />
-            <Route path="/bookings" component={BookingPageWrapper} />
-            <Route path="/messages" component={MessagesWrapper} />
-            <Route path="/profile" component={ProfileWrapper} />
-            
-            {/* Professional routes */}
-            <Route path="/professional/:id" component={ProfessionalViewWrapper} />
-            
-            {/* Booking routes */}
-            <Route path="/booking/request/:professionalId" component={BookingRequestWrapper} />
-            <Route path="/booking/details/:bookingId" component={BookingDetailsWrapper} />
-            <Route path="/booking/payment/:bookingId" component={BookingPaymentWrapper} />
-            
-            {/* Support */}
-            <Route path="/safety-center" component={() => <SafetyCenter onBack={() => window.history.back()} />} />
-            <Route path="/help" component={() => <HelpSupport onBack={() => window.history.back()} />} />
-            
-            {/* Professional dashboard */}
-            <Route path="/professional-dashboard" component={() => (
-              <ProfessionalDashboard 
-                onBack={() => window.history.back()}
-                onNavigateToBookingRequests={() => window.location.href = '/professional/bookings'}
-                onNavigateToEarnings={() => window.location.href = '/professional/earnings'}
-              />
-            )} />
-            <Route path="/professional/bookings" component={() => (
-              <BookingRequests 
-                onBack={() => window.history.back()}
-                onViewUserProfile={(userId) => window.location.href = `/professional/${userId}`}
-              />
-            )} />
-            <Route path="/professional/earnings" component={() => (
-              <EarningsAnalytics onBack={() => window.history.back()} />
-            )} />
-            
-            {/* Admin routes */}
-            <Route path="/admin" component={() => (
-              <AdminDashboard onNavigate={(path) => window.location.href = path} />
-            )} />
-            <Route path="/admin/verification-queue" component={() => (
-              <UserVerificationQueue onNavigate={(path) => window.location.href = path} />
-            )} />
-            <Route path="/admin/content-moderation" component={() => (
-              <ContentModeration onNavigate={(path) => window.location.href = path} />
-            )} />
-            <Route path="/admin/safety-reports" component={() => (
-              <SafetyReportsManagement onNavigate={(path) => window.location.href = path} />
-            )} />
-            
-            {/* Account status */}
-            <Route path="/account/suspended" component={() => <AccountSuspended />} />
-            <Route path="/account/banned" component={() => <PermanentBan />} />
-            <Route path="/account/age-verification-failed" component={() => <AgeVerificationFailed />} />
-            <Route path="/account/id-verification-failed" component={() => <IdVerificationFailed />} />
-            
-            {/* Default redirect for authenticated users */}
-            <Route path="/:rest*">{() => <Redirect to="/dashboard" />}</Route>
+            {/* If authenticated but registration not complete, redirect to auth flow */}
+            {!isRegistrationComplete(user) ? (
+              <Route path="/:rest*">{() => <Redirect to="/auth" />}</Route>
+            ) : (
+              <>
+                {/* Full access for users with completed registration */}
+                {/* Setup routes - onboarding flow (handled by AuthFlow) */}
+                {/* <Route path="/setup/basic-info" component={BasicInfoWrapper} /> */}
+                {/* <Route path="/setup/photo-upload" component={PhotoUploadWrapper} /> */}
+                <Route path="/setup/id-verification" component={IdVerificationWrapper} />
+                
+                <Route path="/dashboard" component={DashboardWrapper} />
+                <Route path="/search" component={() => <SearchPage />} />
+                <Route path="/bookings" component={BookingPageWrapper} />
+                <Route path="/messages" component={MessagesWrapper} />
+                <Route path="/profile" component={ProfileWrapper} />
+                
+                {/* Professional routes */}
+                <Route path="/professional/:id" component={ProfessionalViewWrapper} />
+                
+                {/* Booking routes */}
+                <Route path="/booking/request/:professionalId" component={BookingRequestWrapper} />
+                <Route path="/booking/details/:bookingId" component={BookingDetailsWrapper} />
+                <Route path="/booking/payment/:bookingId" component={BookingPaymentWrapper} />
+                
+                {/* Professional dashboard */}
+                <Route path="/professional-dashboard" component={() => (
+                  <ProfessionalDashboard 
+                    onBack={() => window.history.back()}
+                    onNavigateToBookingRequests={() => window.location.href = '/professional/bookings'}
+                    onNavigateToEarnings={() => window.location.href = '/professional/earnings'}
+                  />
+                )} />
+                <Route path="/professional/bookings" component={() => (
+                  <BookingRequests 
+                    onBack={() => window.history.back()}
+                    onViewUserProfile={(userId) => window.location.href = `/professional/${userId}`}
+                  />
+                )} />
+                <Route path="/professional/earnings" component={() => (
+                  <EarningsAnalytics onBack={() => window.history.back()} />
+                )} />
+                
+                {/* Admin routes */}
+                <Route path="/admin" component={() => (
+                  <AdminDashboard onNavigate={(path) => window.location.href = path} />
+                )} />
+                <Route path="/admin/verification-queue" component={() => (
+                  <UserVerificationQueue onNavigate={(path) => window.location.href = path} />
+                )} />
+                <Route path="/admin/content-moderation" component={() => (
+                  <ContentModeration onNavigate={(path) => window.location.href = path} />
+                )} />
+                <Route path="/admin/safety-reports" component={() => (
+                  <SafetyReportsManagement onNavigate={(path) => window.location.href = path} />
+                )} />
+                
+                {/* Account status */}
+                <Route path="/account/suspended" component={() => <AccountSuspended />} />
+                <Route path="/account/banned" component={() => <PermanentBan />} />
+                <Route path="/account/age-verification-failed" component={() => <AgeVerificationFailed />} />
+                <Route path="/account/id-verification-failed" component={() => <IdVerificationFailed />} />
+                
+                {/* Default redirect for authenticated users with completed registration */}
+                <Route path="/:rest*">{() => <Redirect to="/dashboard" />}</Route>
+              </>
+            )}
           </>
         ) : (
           /* Redirect to welcome for non-authenticated users */

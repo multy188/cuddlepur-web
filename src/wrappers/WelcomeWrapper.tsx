@@ -7,17 +7,24 @@ export default function WelcomeWrapper() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isLoading, user } = useAuth();
   
-  // Redirect authenticated users based on their status
+  // Redirect authenticated users based on registration completion
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
-      // Check if user has completed basic info
-      if (!user.firstName || !user.lastName || !user.dateOfBirth) {
-        setLocation("/setup/basic-info");
-        return;
-      }
+      // Check if user has completed all required registration steps
+      const hasBasicInfo = user.firstName && user.lastName && user.dateOfBirth && user.city;
+      const hasPreferences = user.preferences?.whatFriendsSay && 
+                            user.preferences?.drinking && 
+                            user.preferences?.smoking && 
+                            user.preferences?.married && 
+                            user.preferences?.occupation;
       
-      // Go directly to dashboard after basic info completion
-      setLocation("/dashboard");
+      if (!hasBasicInfo || !hasPreferences) {
+        // User hasn't completed registration, send them back to auth flow
+        setLocation("/auth");
+      } else {
+        // Registration complete, go to dashboard
+        setLocation("/dashboard");
+      }
     }
   }, [isAuthenticated, isLoading, user, setLocation]);
   

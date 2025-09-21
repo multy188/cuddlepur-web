@@ -1,26 +1,59 @@
 import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
-import PhoneAuth from "@/components/PhoneAuth";
+import AuthFlow from "@/components/AuthFlow";
 
 export default function AuthWrapper() {
   const [, setLocation] = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   
-  // Redirect to dashboard if already authenticated
+  // Check if user has completed all required registration steps
+  const isRegistrationComplete = (user: any) => {
+    if (!user) return false;
+    
+    // Check basic info
+    if (!user.firstName || !user.lastName || !user.dateOfBirth || !user.city) {
+      return false;
+    }
+    
+    // Check preferences
+    if (!user.preferences?.whatFriendsSay || !user.preferences?.drinking || 
+        !user.preferences?.smoking || !user.preferences?.married || !user.preferences?.occupation) {
+      return false;
+    }
+    
+    return true;
+  };
+  
+  // Redirect to dashboard only if user is authenticated AND has completed registration
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user && isRegistrationComplete(user)) {
       setLocation("/dashboard");
     }
-  }, [isAuthenticated, setLocation]);
-  
-  if (isAuthenticated) {
-    return null;
-  }
+  }, [isAuthenticated, user, setLocation]);
+
+  const handleComplete = () => {
+    setLocation("/dashboard");
+  };
+
+  const handleBack = () => {
+    setLocation("/");
+  };
+
+  const handleNavigateTerms = () => {
+    setLocation("/terms");
+  };
+
+  const handleNavigatePrivacy = () => {
+    setLocation("/privacy");
+  };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100 flex items-center justify-center p-4">
-      <PhoneAuth />
-    </div>
+    <AuthFlow 
+      onComplete={handleComplete}
+      onBack={handleBack}
+      onNavigateTerms={handleNavigateTerms}
+      onNavigatePrivacy={handleNavigatePrivacy}
+    />
   );
 }
