@@ -8,11 +8,20 @@ export const STEP_PROGRESS: Record<AuthStep, number> = {
   photos: 100
 } as const;
 
-export const LOCATION_SUGGESTIONS = [
+export const GHANA_CITIES = [
   "Accra", "Kumasi", "Tamale", "Sekondi-Takoradi", "Ashaiman", "Sunyani",
   "Cape Coast", "Obuasi", "Teshie", "Tema", "Madina", "Koforidua",
-  "Wa", "Techiman", "Ho", "Nungua", "Lashibi", "Dome", "Gbawe", "Kasoa"
+  "Wa", "Techiman", "Ho", "Nungua", "Lashibi", "Dome", "Gbawe", "Kasoa",
+  "Adenta", "Aflao", "Agogo", "Akim Oda", "Akropong", "Akwatia", "Anloga",
+  "Apam", "Atiwa", "Axim", "Bechem", "Berekum", "Bimbilla", "Bolgatanga",
+  "Bawku", "Ejura", "Elmina", "Goaso", "Hohoe", "Jasikan", "Kade", "Keta",
+  "Kintampo", "Konongo", "Kpandae", "Mampong", "Navrongo", "Nsawam", "Nyakrom",
+  "Prestea", "Salaga", "Savelugu", "Shama", "Sogakope", "Tafo", "Tarkwa",
+  "Techiman", "Winneba", "Yendi", "Zebilla"
 ] as const;
+
+// For backward compatibility
+export const LOCATION_SUGGESTIONS = GHANA_CITIES;
 
 export const PREFERENCE_OPTIONS = {
   drinking: [

@@ -1,104 +1,76 @@
 import { AuthStepRendererProps } from "@/types/authStepRenderer";
 import PhoneStep from "./PhoneStep";
-import OtpStep from "./OtpStep";
-import BasicInfoStep from "./BasicInfoStep";
-import PreferencesStep from "./PreferencesStep";
-import PhotosStep from "./PhotosStep";
+import OtpStepNew from "./OtpStepNew";
+import BasicInfoStepNew from "./BasicInfoStepNew";
+import PreferencesStepNew from "./PreferencesStepNew";
+import PhotosStepNew from "./PhotosStepNew";
 
 const AuthStepRenderer = ({
   currentStep,
   isLoading,
   error,
-  phoneNumber,
-  countryCode,
-  otpCode,
-  resendTimer,
-  userInfo,
-  preferences,
-  uploadedPhotos,
-  filteredSuggestions,
-  showSuggestions,
-  setPhoneNumber,
-  setCountryCode,
-  setOtpCode,
-  phoneHandlers,
-  formHandlers,
-  photoHandlers,
-  locationHandlers,
-  onPreferencesChange,
-  onNavigateTerms,
-  onNavigatePrivacy,
-  onComplete
+  clearError,
+  setIsLoading,
+  setError,
+  setCurrentStep,
 }: AuthStepRendererProps) => {
   switch (currentStep) {
     case "phone":
       return (
         <PhoneStep
-          phoneNumber={phoneNumber}
-          countryCode={countryCode}
           isLoading={isLoading}
           error={error}
-          onPhoneNumberChange={setPhoneNumber}
-          onCountryCodeChange={setCountryCode}
-          onSubmit={phoneHandlers.handlePhoneSubmit}
-          onNavigateTerms={onNavigateTerms}
-          onNavigatePrivacy={onNavigatePrivacy}
+          clearError={clearError}
+          setIsLoading={setIsLoading}
+          setError={setError}
+          setCurrentStep={setCurrentStep}
         />
       );
     
     case "otp":
       return (
-        <OtpStep
-          otpCode={otpCode}
-          countryCode={countryCode}
-          phoneNumber={phoneNumber}
-          resendTimer={resendTimer}
+        <OtpStepNew
           isLoading={isLoading}
           error={error}
-          onOtpCodeChange={setOtpCode}
-          onSubmit={phoneHandlers.handleOtpSubmit}
-          onResendCode={phoneHandlers.handleResendCode}
+          clearError={clearError}
+          setIsLoading={setIsLoading}
+          setError={setError}
+          setCurrentStep={setCurrentStep}
         />
       );
     
     case "basicInfo":
       return (
-        <BasicInfoStep
-          userInfo={userInfo}
-          filteredSuggestions={filteredSuggestions}
-          showSuggestions={showSuggestions}
+        <BasicInfoStepNew
           isLoading={isLoading}
           error={error}
-          onUserInfoChange={locationHandlers.handleUserInfoChange}
-          onLocationChange={locationHandlers.handleLocationChange}
-          onLocationFocus={locationHandlers.handleLocationFocus}
-          onLocationBlur={locationHandlers.handleLocationBlur}
-          onSuggestionClick={locationHandlers.handleSuggestionClick}
-          onSubmit={formHandlers.handleBasicInfoSubmit}
+          clearError={clearError}
+          setIsLoading={setIsLoading}
+          setError={setError}
+          setCurrentStep={setCurrentStep}
         />
       );
     
     case "preferences":
       return (
-        <PreferencesStep
-          preferences={preferences}
+        <PreferencesStepNew
           isLoading={isLoading}
           error={error}
-          onPreferencesChange={onPreferencesChange}
-          onSubmit={formHandlers.handlePreferencesSubmit}
+          clearError={clearError}
+          setIsLoading={setIsLoading}
+          setError={setError}
+          setCurrentStep={setCurrentStep}
         />
       );
     
     case "photos":
       return (
-        <PhotosStep
-          uploadedPhotos={uploadedPhotos}
+        <PhotosStepNew
           isLoading={isLoading}
           error={error}
-          onPhotoUpload={photoHandlers.handlePhotoUpload}
-          onRemovePhoto={photoHandlers.removePhoto}
-          onUploadPhotos={photoHandlers.handlePhotoSubmit}
-          onSkip={onComplete}
+          clearError={clearError}
+          setIsLoading={setIsLoading}
+          setError={setError} 
         />
       );
     

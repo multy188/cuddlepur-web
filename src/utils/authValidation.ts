@@ -1,12 +1,8 @@
 import { VALIDATION_RULES } from "@/constants/auth";
 
 export const validatePhoneNumber = (phoneNumber: string): string | null => {
-  if (phoneNumber.length < VALIDATION_RULES.PHONE_MIN_LENGTH) {
-    return "Phone number must be at least 7 digits long.";
-  }
-  
-  if (phoneNumber.length > VALIDATION_RULES.PHONE_MAX_LENGTH) {
-    return "Phone number cannot be longer than 15 digits.";
+  if (phoneNumber.length !== 10) {
+    return "Phone number must be exactly 10 digits long.";
   }
   
   if (!/^\d+$/.test(phoneNumber)) {
@@ -21,7 +17,7 @@ export const validateOtpCode = (otpCode: string): boolean => {
 };
 
 export const sanitizePhoneNumber = (input: string): string => {
-  return input.replace(/\D/g, '').slice(0, VALIDATION_RULES.PHONE_MAX_LENGTH);
+  return input.replace(/\D/g, '').slice(0, 10);
 };
 
 export const validatePhotoUpload = (currentPhotos: File[], newPhotos: File[]): string | null => {

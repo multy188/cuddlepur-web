@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { useAuthApi } from './useAuthApi';
+import { useUploadPhotos } from './useAuth';
 import { validatePhotoUpload } from '@/utils/authValidation';
-import { getAuthToken } from '@/utils/authHelpers';
 import { VALIDATION_RULES } from '@/constants/auth';
 
 interface UsePhotoHandlersProps {
@@ -21,7 +20,7 @@ export const usePhotoHandlers = ({
   setError,
   onComplete
 }: UsePhotoHandlersProps) => {
-  const api = useAuthApi();
+  const uploadPhotosMutation = useUploadPhotos();
 
   const handlePhotoUpload = useCallback((files: FileList | null) => {
     if (!files) return;
@@ -47,12 +46,9 @@ export const usePhotoHandlers = ({
     
     try {
       if (uploadedPhotos.length > 0) {
-        const token = getAuthToken();
-        if (!token) throw new Error('Authentication required');
-
         const formData = new FormData();
         uploadedPhotos.forEach(photo => formData.append('photos', photo));
-        await api.uploadPhotos(token, formData);
+        await uploadPhotosMutation.mutateAsync(formData);
       }
       
       onComplete();
@@ -61,7 +57,7 @@ export const usePhotoHandlers = ({
     } finally {
       setIsLoading(false);
     }
-  }, [uploadedPhotos, clearError, api, onComplete, setIsLoading, setError]);
+  }, [uploadedPhotos, clearError, uploadPhotosMutation, onComplete, setIsLoading, setError]);
 
   return {
     handlePhotoUpload,

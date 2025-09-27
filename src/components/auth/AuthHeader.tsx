@@ -3,12 +3,12 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { AuthStep } from "@/types/auth";
 import { STEP_PROGRESS } from "@/constants/auth";
+import { useLocation } from "wouter";
 
 interface AuthHeaderProps {
   currentStep: AuthStep;
   isAuthenticated: boolean;
   signOutPending: boolean;
-  onBack: () => void;
   onSignOut: () => void;
 }
 
@@ -16,28 +16,34 @@ const AuthHeader = ({
   currentStep,
   isAuthenticated,
   signOutPending,
-  onBack,
-  onSignOut
+  onSignOut,
 }: AuthHeaderProps) => {
-  const showSignOut = isAuthenticated && currentStep !== "phone" && currentStep !== "otp";
+  const showSignOut =
+    isAuthenticated && currentStep !== "phone" && currentStep !== "otp";
+  const [, setLocation] = useLocation();
 
   return (
     <div className="max-w-md mx-auto mb-6">
       <div className="flex items-center justify-between mb-2">
-        <Button variant="ghost" size="sm" onClick={onBack}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLocation("/")}
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
-        
+
         <div className="flex items-center gap-2">
           <div className="text-sm text-muted-foreground">
-            Step {Object.keys(STEP_PROGRESS).indexOf(currentStep) + 1} of {Object.keys(STEP_PROGRESS).length}
+            Step {Object.keys(STEP_PROGRESS).indexOf(currentStep) + 1} of{" "}
+            {Object.keys(STEP_PROGRESS).length}
           </div>
-          
+
           {showSignOut && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onSignOut}
               disabled={signOutPending}
               className="text-muted-foreground hover:text-foreground"
@@ -49,10 +55,10 @@ const AuthHeader = ({
           )}
         </div>
       </div>
-      
-      <Progress 
-        value={STEP_PROGRESS[currentStep]} 
-        className="h-2 bg-gray-700 [&>div]:bg-primary" 
+
+      <Progress
+        value={STEP_PROGRESS[currentStep]}
+        className="h-2 bg-gray-700 [&>div]:bg-primary"
       />
     </div>
   );

@@ -1,12 +1,5 @@
 export type AuthStep = "phone" | "otp" | "basicInfo" | "preferences" | "photos";
 
-export interface AuthFlowProps {
-  onComplete: () => void;
-  onBack: () => void;
-  onNavigateTerms?: () => void;
-  onNavigatePrivacy?: () => void;
-}
-
 export interface UserInfo {
   firstName: string;
   lastName: string;

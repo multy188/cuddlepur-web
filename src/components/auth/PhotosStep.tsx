@@ -5,26 +5,37 @@ import { VALIDATION_RULES } from "@/constants/auth";
 import PhotoUploadArea from "./photos/PhotoUploadArea";
 import PhotoPreview from "./photos/PhotoPreview";
 import PhotoActions from "./photos/PhotoActions";
+import { usePhotoHandlers } from "@/hooks/usePhotoHandlers";
 
 interface PhotosStepProps {
   uploadedPhotos: File[];
   isLoading: boolean;
   error: string;
-  onPhotoUpload: (files: FileList | null) => void;
-  onRemovePhoto: (index: number) => void;
-  onUploadPhotos: () => void;
-  onSkip: () => void;
+  setUploadedPhotos: React.Dispatch<React.SetStateAction<File[]>>;
+  clearError: () => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string) => void;
+  onComplete: () => void;
 }
 
 const PhotosStep = ({
   uploadedPhotos,
   isLoading,
   error,
-  onPhotoUpload,
-  onRemovePhoto,
-  onUploadPhotos,
-  onSkip
+  setUploadedPhotos,
+  clearError,
+  setIsLoading,
+  setError,
+  onComplete
 }: PhotosStepProps) => {
+  const photoHandlers = usePhotoHandlers({
+    uploadedPhotos,
+    setUploadedPhotos,
+    clearError,
+    setIsLoading,
+    setError,
+    onComplete
+  });
   return (
     <Card className="p-6 max-w-md mx-auto">
       <div className="text-center mb-6">
@@ -45,19 +56,19 @@ const PhotosStep = ({
         
         <PhotoUploadArea 
           uploadedPhotos={uploadedPhotos}
-          onPhotoUpload={onPhotoUpload}
+          onPhotoUpload={photoHandlers.handlePhotoUpload}
         />
 
         <PhotoPreview 
           uploadedPhotos={uploadedPhotos}
-          onRemovePhoto={onRemovePhoto}
+          onRemovePhoto={photoHandlers.removePhoto}
         />
 
         <PhotoActions
           uploadedPhotos={uploadedPhotos}
           isLoading={isLoading}
-          onUploadPhotos={onUploadPhotos}
-          onSkip={onSkip}
+          onUploadPhotos={photoHandlers.handlePhotoSubmit}
+          onSkip={onComplete}
         />
       </div>
     </Card>

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useAuthApi } from './useAuthApi';
+import { useSendVerificationCode, useVerifyCode } from './useAuth';
 import { validatePhoneNumber } from '@/utils/authValidation';
 import { AuthStep } from '@/types/auth';
 
@@ -12,7 +12,6 @@ interface UsePhoneHandlersProps {
   setError: (error: string) => void;
   setCurrentStep: (step: AuthStep) => void;
   startResendTimer: () => void;
-  login: (token: string, user: any) => void;
 }
 
 export const usePhoneHandlers = ({
@@ -23,10 +22,10 @@ export const usePhoneHandlers = ({
   setIsLoading,
   setError,
   setCurrentStep,
-  startResendTimer,
-  login
+  startResendTimer
 }: UsePhoneHandlersProps) => {
-  const api = useAuthApi();
+  const sendCodeMutation = useSendVerificationCode();
+  const verifyCodeMutation = useVerifyCode();
 
   const handlePhoneSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +40,7 @@ export const usePhoneHandlers = ({
     }
     
     try {
-      await api.sendVerificationCode(countryCode + phoneNumber);
+      await sendCodeMutation.mutateAsync({ phoneNumber: countryCode + phoneNumber });
       setCurrentStep("otp");
       startResendTimer();
     } catch (error: any) {
@@ -49,7 +48,7 @@ export const usePhoneHandlers = ({
     } finally {
       setIsLoading(false);
     }
-  }, [phoneNumber, countryCode, clearError, api, startResendTimer, setIsLoading, setError, setCurrentStep]);
+  }, [phoneNumber, countryCode, clearError, sendCodeMutation, startResendTimer, setIsLoading, setError, setCurrentStep]);
 
   const handleOtpSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,29 +56,59 @@ export const usePhoneHandlers = ({
     setIsLoading(true);
     
     try {
-      const data = await api.verifyCode(countryCode + phoneNumber, otpCode);
+      const data = await verifyCodeMutation.mutateAsync({ 
+        phoneNumber: countryCode + phoneNumber, 
+        code: otpCode 
+      });
       
-      if (data.token && data.user) {
-        login(data.token, data.user);
-        setCurrentStep("basicInfo");
+      if (data.success && data.token && data.user) {
+        // Check if user has already completed registration
+        const isRegistrationComplete = (user: any) => {
+          if (!user) return false;
+          
+          // Check basic info
+          if (!user.firstName || !user.lastName || !user.dateOfBirth || !user.city) {
+            return false;
+          }
+          
+          // Check preferences
+          if (!user.preferences?.whatFriendsSay || !user.preferences?.drinking || 
+              !user.preferences?.smoking || !user.preferences?.married || !user.preferences?.occupation) {
+            return false;
+          }
+          
+          // Check photos step completion (either has photos or explicitly skipped)
+          if (!user.photos?.length && !user.photosSkipped) {
+            return false;
+          }
+          
+          return true;
+        };
+
+        // If registration is complete, the AuthWrapper will redirect to dashboard
+        // Otherwise, continue with registration flow
+        if (!isRegistrationComplete(data.user)) {
+          setCurrentStep("basicInfo");
+        }
+        // If registration is complete, don't set step - let AuthWrapper handle dashboard redirect
       }
     } catch (error: any) {
       setError(error.message || 'Unable to verify code. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [otpCode, countryCode, phoneNumber, clearError, api, login, setIsLoading, setError, setCurrentStep]);
+  }, [otpCode, countryCode, phoneNumber, clearError, verifyCodeMutation, setIsLoading, setError, setCurrentStep]);
 
   const handleResendCode = useCallback(async () => {
     clearError();
     
     try {
-      await api.sendVerificationCode(countryCode + phoneNumber);
+      await sendCodeMutation.mutateAsync({ phoneNumber: countryCode + phoneNumber });
       startResendTimer();
     } catch (error: any) {
       setError(error.message || 'Unable to resend code. Please try again.');
     }
-  }, [countryCode, phoneNumber, clearError, api, startResendTimer, setError]);
+  }, [countryCode, phoneNumber, clearError, sendCodeMutation, startResendTimer, setError]);
 
   return {
     handlePhoneSubmit,

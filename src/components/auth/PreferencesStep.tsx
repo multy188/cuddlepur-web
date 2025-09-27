@@ -1,22 +1,45 @@
 import { Card } from "@/components/ui/card";
-import { Preferences } from "@/types/auth";
+import { Preferences, UserInfo, AuthStep } from "@/types/auth";
 import PreferenceForm from "./preferences/PreferenceForm";
+import { useFormHandlers } from "@/hooks/useFormHandlers";
+import { useCallback } from "react";
 
 interface PreferencesStepProps {
   preferences: Preferences;
+  userInfo: UserInfo;
   isLoading: boolean;
   error: string;
-  onPreferencesChange: (field: keyof Preferences, value: string | boolean) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  setPreferences: React.Dispatch<React.SetStateAction<Preferences>>;
+  clearError: () => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string) => void;
+  setCurrentStep: (step: AuthStep) => void;
 }
 
 const PreferencesStep = ({
   preferences,
+  userInfo,
   isLoading,
   error,
-  onPreferencesChange,
-  onSubmit
+  setPreferences,
+  clearError,
+  setIsLoading,
+  setError,
+  setCurrentStep
 }: PreferencesStepProps) => {
+  
+  const formHandlers = useFormHandlers({
+    userInfo,
+    preferences,
+    clearError,
+    setIsLoading,
+    setError,
+    setCurrentStep
+  });
+
+  const handlePreferencesChange = useCallback((field: keyof Preferences, value: string | boolean) => {
+    setPreferences(prev => ({ ...prev, [field]: value }));
+  }, [setPreferences]);
   return (
     <Card className="p-6 max-w-md mx-auto">
       <div className="text-center mb-6">
@@ -28,8 +51,8 @@ const PreferencesStep = ({
         preferences={preferences}
         isLoading={isLoading}
         error={error}
-        onPreferencesChange={onPreferencesChange}
-        onSubmit={onSubmit}
+        onPreferencesChange={handlePreferencesChange}
+        onSubmit={formHandlers.handlePreferencesSubmit}
       />
     </Card>
   );

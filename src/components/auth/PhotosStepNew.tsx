@@ -1,0 +1,142 @@
+import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { ImagePlus, AlertCircle, Loader2, X, Upload } from "lucide-react";
+import { VALIDATION_RULES } from "@/constants/auth";
+import { usePhotosForm } from "@/hooks/usePhotosForm";
+
+interface PhotosStepNewProps {
+  isLoading: boolean;
+  error: string;
+  clearError: () => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string) => void;
+}
+
+const PhotosStepNew = ({
+  isLoading,
+  error,
+  clearError,
+  setIsLoading,
+  setError,
+}: PhotosStepNewProps) => {
+  
+
+  const {
+    uploadedPhotos,
+    handlePhotoUpload,
+    removePhoto,
+    handleSubmit,
+    handleSkip,
+  } = usePhotosForm({ 
+    setIsLoading,
+    setError,
+    clearError,
+  });
+
+  return (
+    <Card className="p-6 max-w-md mx-auto">
+      <div className="text-center mb-6">
+        <ImagePlus className="h-12 w-12 text-primary mx-auto mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Add Your Photos (Optional)</h2>
+        <p className="text-muted-foreground">
+          Upload up to {VALIDATION_RULES.MAX_PHOTOS} photos to complete your
+          profile
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Upload Area */}
+        <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center relative">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => handlePhotoUpload(e.target.files)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            disabled={
+              isLoading || uploadedPhotos.length >= VALIDATION_RULES.MAX_PHOTOS
+            }
+          />
+          <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm font-medium">
+            Drop photos here or click to browse
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {uploadedPhotos.length}/{VALIDATION_RULES.MAX_PHOTOS} photos
+            uploaded
+          </p>
+        </div>
+
+        {/* Photo Preview Grid */}
+        {uploadedPhotos.length > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {uploadedPhotos.map((photo, index) => (
+              <div
+                key={index}
+                className="relative group"
+              >
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt={`Photo ${index + 1}`}
+                  className="w-full h-24 object-cover rounded-md"
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removePhoto(index)}
+                  disabled={isLoading}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleSkip}
+            className="flex-1"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Completing...
+              </>
+            ) : (
+              "Skip for now"
+            )}
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="flex-1"
+            disabled={uploadedPhotos.length === 0 || isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              "Upload Photos"
+            )}
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+export default PhotosStepNew;

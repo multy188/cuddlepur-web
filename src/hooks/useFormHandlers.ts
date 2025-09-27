@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { useAuthApi } from './useAuthApi';
-import { formatUserDataForApi, getAuthToken } from '@/utils/authHelpers';
+import { useUpdateProfile } from './useAuth';
+import { formatUserDataForApi } from '@/utils/authHelpers';
 import { AuthStep, UserInfo, Preferences } from '@/types/auth';
 
 interface UseFormHandlersProps {
@@ -9,8 +9,7 @@ interface UseFormHandlersProps {
   clearError: () => void;
   setIsLoading: (loading: boolean) => void;
   setError: (error: string) => void;
-  setCurrentStep: (step: AuthStep) => void;
-  login: (token: string, user: any) => void;
+  setCurrentStep: (step: AuthStep) => void; 
 }
 
 export const useFormHandlers = ({
@@ -19,10 +18,9 @@ export const useFormHandlers = ({
   clearError,
   setIsLoading,
   setError,
-  setCurrentStep,
-  login
+  setCurrentStep, 
 }: UseFormHandlersProps) => {
-  const api = useAuthApi();
+  const updateProfileMutation = useUpdateProfile();
 
   const handleBasicInfoSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,22 +28,14 @@ export const useFormHandlers = ({
     setIsLoading(true);
     
     try {
-      const token = getAuthToken();
-      if (!token) throw new Error('Authentication required');
-
-      const data = await api.updateProfile(token, formatUserDataForApi(userInfo));
-      
-      if (data.user && login) {
-        login(token, data.user);
-      }
-      
-      setCurrentStep("preferences");
+      await updateProfileMutation.mutateAsync(formatUserDataForApi(userInfo));
+      setCurrentStep("photos");
     } catch (error: any) {
       setError(error.message || 'Unable to save your information. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [userInfo, clearError, api, login, setIsLoading, setError, setCurrentStep]);
+  }, [userInfo, clearError, updateProfileMutation, setIsLoading, setError, setCurrentStep]);
 
   const handlePreferencesSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,30 +53,14 @@ export const useFormHandlers = ({
     setIsLoading(true);
     
     try {
-      const token = getAuthToken();
-      if (!token) throw new Error('Authentication required');
-
-      const data = await api.updateProfile(token, { preferences });
-      
-      if (data.user && login) {
-        login(token, data.user);
-      }
-      
-      // Update localStorage with new user data including preferences
-      const currentUser = localStorage.getItem('cuddlepur_user');
-      if (currentUser) {
-        const userData = JSON.parse(currentUser);
-        userData.preferences = preferences;
-        localStorage.setItem('cuddlepur_user', JSON.stringify(userData));
-      }
-      
+      await updateProfileMutation.mutateAsync({ preferences });
       setCurrentStep("photos");
     } catch (error: any) {
       setError(error.message || 'Unable to save your preferences. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [preferences, clearError, api, login, setIsLoading, setError, setCurrentStep]);
+  }, [preferences, clearError, updateProfileMutation, setIsLoading, setError, setCurrentStep]);
 
   return {
     handleBasicInfoSubmit,

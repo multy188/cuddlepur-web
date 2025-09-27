@@ -1,8 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSignOut } from '@/hooks/useAuth';
-import { useAuthApi } from './useAuthApi';
+import { useSignOut, useValidateToken } from '@/hooks/useAuth';
 import { determineCurrentStep, clearAuthStorage, getAuthToken } from '@/utils/authHelpers';
 import { UserInfo, Preferences } from '@/types/auth';
 
@@ -21,8 +20,8 @@ export const useAuthFlow = ({
 }: UseAuthFlowProps) => {
   const { user, isAuthenticated } = useAuth();
   const signOutMutation = useSignOut();
+  const validateTokenMutation = useValidateToken();
   const [, setLocation] = useLocation();
-  const api = useAuthApi();
 
   const handleSignOut = useCallback(() => {
     signOutMutation.mutate(undefined, {
@@ -32,16 +31,26 @@ export const useAuthFlow = ({
 
   const validateTokenOnMount = useCallback(async () => {
     const token = getAuthToken();
-    if (!token || !isAuthenticated) return;
+    console.log('🔍 Token validation - token:', token ? 'EXISTS' : 'MISSING');
+    console.log('🔍 Token validation - isAuthenticated:', isAuthenticated);
+    console.log('🔍 Token validation - user:', user?.id || 'NO USER');
+    
+    if (!token || !isAuthenticated) {
+      console.log('🔍 Skipping validation - missing token or not authenticated');
+      return;
+    }
 
     try {
-      await api.validateToken(token);
-    } catch {
+      console.log('🔍 Attempting token validation...');
+      await validateTokenMutation.mutateAsync(token);
+      console.log('✅ Token validation successful');
+    } catch (error: any) {
+      console.error('❌ Token validation failed:', error.message);
       clearAuthStorage();
       setCurrentStep("phone");
       setError("Your session has expired. Please verify your phone number again.");
     }
-  }, [isAuthenticated, api, setCurrentStep, setError]);
+  }, [isAuthenticated, validateTokenMutation, setCurrentStep, setError, user]);
 
   const initializeFormData = useCallback((userData: any) => {
     if (!userData) return;
@@ -64,12 +73,19 @@ export const useAuthFlow = ({
     });
   }, [setUserInfo, setPreferences]);
 
+  // Only validate token on mount if we're not freshly authenticated
   useEffect(() => {
+    // Skip validation if user just logged in successfully
+    if (isAuthenticated && user) {
+      console.log('🔍 User authenticated, skipping token validation');
+      return;
+    }
     validateTokenOnMount();
-  }, [validateTokenOnMount]);
+  }, [validateTokenOnMount, isAuthenticated, user]);
 
   useEffect(() => {
     if (isAuthenticated && user) {
+      console.log('🔍 Setting up authenticated user, step:', determineCurrentStep(user));
       initializeFormData(user);
       setCurrentStep(determineCurrentStep(user));
     }

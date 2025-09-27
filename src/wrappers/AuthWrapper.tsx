@@ -22,6 +22,11 @@ export default function AuthWrapper() {
       return false;
     }
     
+    // Check photos step completion (either has photos or explicitly skipped)
+    if (!user.photos?.length && !user.photosSkipped) {
+      return false;
+    }
+    
     return true;
   };
   
@@ -32,28 +37,12 @@ export default function AuthWrapper() {
     }
   }, [isAuthenticated, user, setLocation]);
 
-  const handleComplete = () => {
-    setLocation("/dashboard");
-  };
+ 
 
-  const handleBack = () => {
-    setLocation("/");
-  };
 
-  const handleNavigateTerms = () => {
-    setLocation("/terms");
-  };
-
-  const handleNavigatePrivacy = () => {
-    setLocation("/privacy");
-  };
   
   return (
     <AuthFlow 
-      onComplete={handleComplete}
-      onBack={handleBack}
-      onNavigateTerms={handleNavigateTerms}
-      onNavigatePrivacy={handleNavigatePrivacy}
     />
   );
 }

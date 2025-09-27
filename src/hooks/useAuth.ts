@@ -176,6 +176,87 @@ export const useSignOut = () => {
   });
 };
 
+// Upload photos
+export const useUploadPhotos = () => {
+  const { token, updateUser } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/user/photos`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Unable to upload photos';
+        
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.message || errorMessage;
+        } catch (e) {
+          if (response.status === 413) {
+            errorMessage = 'Photos are too large. Please try smaller images.';
+          } else if (response.status === 400) {
+            errorMessage = 'Invalid photo format. Please upload JPG or PNG images.';
+          } else if (response.status >= 500) {
+            errorMessage = 'Our servers are experiencing issues. Please try again shortly.';
+          }
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success && data.user) {
+        updateUser(data.user);
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+      }
+    }
+  });
+};
+
+// Validate token (similar to useCurrentUser but for validation purposes)
+export const useValidateToken = () => {
+  const { token } = useAuth();
+
+  return useMutation({
+    mutationFn: async (tokenToValidate?: string) => {
+      const authToken = tokenToValidate || token;
+      
+      if (!authToken) {
+        throw new Error('No authentication token');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Session expired. Please verify your phone number again.');
+        }
+        
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to validate token');
+      }
+
+      return response.json();
+    }
+  });
+};
+
 // Get current user
 export const useCurrentUser = () => {
   const { token, user } = useAuth();

@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Shield, AlertCircle, Loader2 } from "lucide-react";
+import { usePhoneHandlers } from "@/hooks/usePhoneHandlers";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthStep } from "@/types/auth";
 
 interface OtpStepProps {
   otpCode: string;
@@ -12,8 +15,11 @@ interface OtpStepProps {
   isLoading: boolean;
   error: string;
   onOtpCodeChange: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  onResendCode: () => void;
+  clearError: () => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string) => void;
+  setCurrentStep: (step: AuthStep) => void;
+  startResendTimer: () => void;
 }
 
 const OtpStep = ({
@@ -24,9 +30,25 @@ const OtpStep = ({
   isLoading,
   error,
   onOtpCodeChange,
-  onSubmit,
-  onResendCode
+  clearError,
+  setIsLoading,
+  setError,
+  setCurrentStep,
+  startResendTimer
 }: OtpStepProps) => {
+  const { login } = useAuth();
+  
+  const phoneHandlers = usePhoneHandlers({
+    phoneNumber,
+    countryCode,
+    otpCode,
+    clearError,
+    setIsLoading,
+    setError,
+    setCurrentStep,
+    startResendTimer,
+    login
+  });
   return (
     <Card className="p-6 max-w-md mx-auto">
       <div className="text-center mb-6">
@@ -37,7 +59,7 @@ const OtpStep = ({
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={phoneHandlers.handleOtpSubmit} className="space-y-4">
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -80,7 +102,7 @@ const OtpStep = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={onResendCode}
+            onClick={phoneHandlers.handleResendCode}
           >
             Resend Code
           </Button>
