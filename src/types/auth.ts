@@ -30,4 +30,5 @@ export interface AuthState {
   uploadedPhotos: File[];
   filteredSuggestions: string[];
   showSuggestions: boolean;
+  photosSkipped: boolean;
 }

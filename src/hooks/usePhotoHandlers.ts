@@ -24,15 +24,15 @@ export const usePhotoHandlers = ({
 
   const handlePhotoUpload = useCallback((files: FileList | null) => {
     if (!files) return;
-    
+
     const newPhotos = Array.from(files);
     const validationError = validatePhotoUpload(uploadedPhotos, newPhotos);
-    
+
     if (validationError) {
       setError(validationError);
       return;
     }
-    
+
     setUploadedPhotos(prev => [...prev, ...newPhotos].slice(0, VALIDATION_RULES.MAX_PHOTOS));
   }, [uploadedPhotos, setUploadedPhotos, setError]);
 
@@ -43,14 +43,14 @@ export const usePhotoHandlers = ({
   const handlePhotoSubmit = useCallback(async () => {
     clearError();
     setIsLoading(true);
-    
+
     try {
       if (uploadedPhotos.length > 0) {
         const formData = new FormData();
         uploadedPhotos.forEach(photo => formData.append('photos', photo));
         await uploadPhotosMutation.mutateAsync(formData);
       }
-      
+
       onComplete();
     } catch (error: any) {
       setError(error.message || 'Unable to upload your photos. Please try again.');

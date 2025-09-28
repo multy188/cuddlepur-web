@@ -42,7 +42,7 @@ export default function ProfessionalGridCard({
       {/* Profile Image - Takes 2/3 of container */}
       <div className="relative aspect-[4/5]">
         <img 
-          src={profileImage} 
+          src={profileImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=random&size=300'} 
           alt={name}
           className="w-full h-full object-cover"
         />

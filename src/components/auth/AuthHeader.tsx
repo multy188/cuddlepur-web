@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { AuthStep } from "@/types/auth";
 import { STEP_PROGRESS } from "@/constants/auth";
-import { useLocation } from "wouter";
 
 interface AuthHeaderProps {
   currentStep: AuthStep;
@@ -20,20 +19,10 @@ const AuthHeader = ({
 }: AuthHeaderProps) => {
   const showSignOut =
     isAuthenticated && currentStep !== "phone" && currentStep !== "otp";
-  const [, setLocation] = useLocation();
 
   return (
     <div className="max-w-md mx-auto mb-6">
       <div className="flex items-center justify-between mb-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setLocation("/")}
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back
-        </Button>
-
         <div className="flex items-center gap-2">
           <div className="text-sm text-muted-foreground">
             Step {Object.keys(STEP_PROGRESS).indexOf(currentStep) + 1} of{" "}

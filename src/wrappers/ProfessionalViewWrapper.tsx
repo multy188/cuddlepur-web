@@ -1,26 +1,32 @@
 import { useLocation, useRoute } from "wouter";
 import ProfessionalView from "@/components/ProfessionalView";
-import { useProfessionals } from "@/hooks";
+import { useProfessional } from "@/hooks/use-professionals";
 
 export default function ProfessionalViewWrapper() {
   const [, setLocation] = useLocation();
   const [match, params] = useRoute("/professional/:id");
-  const { professionals } = useProfessionals();
+  const { professional, isLoading } = useProfessional(params?.id || '');
   
   if (!match || !params?.id) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p>Professional not found</p>
+        <p>User not found</p>
       </div>
     );
   }
   
-  const professional = professionals.find(p => p.id === params.id);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
   
   if (!professional) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p>Professional not found</p>
+        <p>User not found</p>
       </div>
     );
   }

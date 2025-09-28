@@ -6,6 +6,7 @@ import { FormField, FormItem, FormControl, FormMessage, Form } from "@/component
 import { Shield, AlertCircle, Loader2 } from "lucide-react";
 import { useOtpForm } from "@/hooks/useOtpForm";
 import { AuthStep } from "@/types/auth";
+import { processPhoneNumberForCountry, formatPhoneNumber } from "@/utils/authValidation";
 
 interface OtpStepNewProps {
   isLoading: boolean;
@@ -43,7 +44,7 @@ const OtpStepNew = ({
         <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
         <h2 className="text-2xl font-bold mb-2">Enter Verification Code</h2>
         <p className="text-muted-foreground">
-          Enter the 6-digit code sent to {countryCode}{phoneNumber}
+          Enter the 6-digit code sent to {countryCode} {formatPhoneNumber(processPhoneNumberForCountry(phoneNumber, countryCode))}
         </p>
       </div>
 
@@ -98,7 +99,7 @@ const OtpStepNew = ({
       <div className="text-center mt-4">
         {resendTimer > 0 ? (
           <p className="text-sm text-muted-foreground">
-            Resend code in {resendTimer}s
+            Resend code in {Math.floor(resendTimer / 60)}:{(resendTimer % 60).toString().padStart(2, '0')}
           </p>
         ) : (
           <Button 

@@ -29,7 +29,7 @@ export const useFormHandlers = ({
     
     try {
       await updateProfileMutation.mutateAsync(formatUserDataForApi(userInfo));
-      setCurrentStep("photos");
+      setCurrentStep("preferences");
     } catch (error: any) {
       setError(error.message || 'Unable to save your information. Please try again.');
     } finally {

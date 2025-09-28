@@ -123,7 +123,7 @@ export default function ProfessionalView({ professional, onBack, onBookSession }
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-shrink-0">
                 <Avatar className="w-20 h-20">
-                  <AvatarImage src={professional.profileImages[0]} alt={professional.name} />
+                  <AvatarImage src={professional.profileImage || professional.profileImages?.[0] || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(professional.name) + '&background=random'} alt={professional.name} />
                   <AvatarFallback>
                     <User className="w-10 h-10" />
                   </AvatarFallback>
@@ -187,7 +187,7 @@ export default function ProfessionalView({ professional, onBack, onBookSession }
                     data-testid="main-photo"
                   >
                     <img
-                      src={professional.profileImages[selectedImageIndex]}
+                      src={professional.profileImages?.[selectedImageIndex] || professional.profileImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(professional.name) + '&background=random&size=400'}
                       alt={professional.name}
                       className="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
                     />
@@ -235,7 +235,7 @@ export default function ProfessionalView({ professional, onBack, onBookSession }
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl">
                   <img
-                    src={professional.profileImages[selectedImageIndex]}
+                    src={professional.profileImages?.[selectedImageIndex] || professional.profileImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(professional.name) + '&background=random&size=400'}
                     alt={professional.name}
                     className="w-full h-auto max-h-[80vh] object-contain"
                   />
@@ -243,7 +243,7 @@ export default function ProfessionalView({ professional, onBack, onBookSession }
               </Dialog>
 
               {/* Swipe indicators */}
-              {professional.profileImages.length > 1 && (
+              {professional.profileImages && professional.profileImages.length > 1 && (
                 <div className="flex justify-center gap-2">
                   {professional.profileImages.map((_, index) => (
                     <button
@@ -275,16 +275,18 @@ export default function ProfessionalView({ professional, onBack, onBookSession }
                 {professional.bio}
               </p>
               
-              <div>
-                <h4 className="font-semibold mb-2">Specialties</h4>
-                <div className="flex flex-wrap gap-2">
-                  {professional.specialties.map((specialty, index) => (
-                    <Badge key={index} variant="outline" data-testid={`specialty-${index}`}>
-                      {specialty}
-                    </Badge>
-                  ))}
+              {professional.specialties && professional.specialties.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Specialties</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {professional.specialties.map((specialty, index) => (
+                      <Badge key={index} variant="outline" data-testid={`specialty-${index}`}>
+                        {specialty}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -378,7 +380,7 @@ export default function ProfessionalView({ professional, onBack, onBookSession }
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {professional.reviews.slice(0, 3).map((review) => (
+                {professional.reviews && professional.reviews.length > 0 ? professional.reviews.slice(0, 3).map((review) => (
                   <div key={review.id} className="border-b pb-4 last:border-b-0">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -398,8 +400,10 @@ export default function ProfessionalView({ professional, onBack, onBookSession }
                     </div>
                     <p className="text-sm text-muted-foreground">{review.comment}</p>
                   </div>
-                ))}
-                {professional.reviewCount > 3 && (
+                )) : (
+                  <p className="text-muted-foreground text-center py-4">No reviews yet</p>
+                )}
+                {professional.reviews && professional.reviewCount > 3 && (
                   <Button variant="outline" className="w-full">
                     View All Reviews
                   </Button>

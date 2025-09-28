@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "./contexts/AuthContext";
 
 // Components
-import SearchPage from "@/components/SearchPage";
 import BasicInfoForm from "@/components/BasicInfoForm";
 
 // Pages
@@ -25,10 +24,11 @@ import UserVerificationQueue from "@/pages/UserVerificationQueue";
 import ContentModeration from "@/pages/ContentModeration";
 import SafetyReportsManagement from "@/pages/SafetyReportsManagement";
 import IdVerificationFailed from "@/pages/IdVerificationFailed";
+import Auth from "@/pages/Auth";
+import SearchPage from "@/pages/SearchPage";
 
 // Wrapper components
 import WelcomeWrapper from "@/wrappers/WelcomeWrapper";
-import AuthWrapper from "@/wrappers/AuthWrapper";
 import BasicInfoWrapper from "@/wrappers/BasicInfoWrapper";
 import PhotoUploadWrapper from "@/wrappers/PhotoUploadWrapper";
 import IdVerificationWrapper from "@/wrappers/IdVerificationWrapper";
@@ -40,6 +40,7 @@ import BookingRequestWrapper from "@/wrappers/BookingRequestWrapper";
 import BookingDetailsWrapper from "@/wrappers/BookingDetailsWrapper";
 import BookingPaymentWrapper from "@/wrappers/BookingPaymentWrapper";
 import BookingPageWrapper from "@/wrappers/BookingPageWrapper";
+import { useIsCompletedRegistration } from "./hooks/useIsCompletedRegistration";
 
 // Loading component
 const LoadingSpinner = () => (
@@ -50,27 +51,20 @@ const LoadingSpinner = () => (
 
 export function Routes() {
   const { isAuthenticated, isLoading, user } = useAuth();
+  const isRegistrationComplete = useIsCompletedRegistration();
+  
+  // Debug logging
+  console.log('Routes render:', {
+    isAuthenticated,
+    isLoading,
+    hasUser: !!user,
+    pathname: window.location.pathname
+  });
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
-
-  // Check if user has completed all required registration steps
-  const isRegistrationComplete = (user: any) => {
-    if (!user) return false;
-    
-    // Check basic info
-    const hasBasicInfo = user.firstName && user.lastName && user.dateOfBirth && user.city;
-    
-    // Check preferences
-    const hasPreferences = user.preferences?.whatFriendsSay && 
-                          user.preferences?.drinking && 
-                          user.preferences?.smoking && 
-                          user.preferences?.married && 
-                          user.preferences?.occupation;
-    
-    return hasBasicInfo && hasPreferences;
-  };
+ 
 
   // Handle account status redirects
   if (isAuthenticated && user) {
@@ -86,7 +80,7 @@ export function Routes() {
       <Switch>
         {/* Public routes - always accessible */}
         <Route path="/" component={WelcomeWrapper} />
-        <Route path="/auth" component={AuthWrapper} />
+        <Route path="/auth" component={Auth} />
         <Route path="/how-it-works" component={() => <HowItWorks onBack={() => window.history.back()} />} />
         <Route path="/faq" component={() => <FAQ onBack={() => window.history.back()} />} />
         <Route path="/terms" component={() => <TermsOfService onBack={() => window.history.back()} />} />
@@ -97,10 +91,8 @@ export function Routes() {
         {/* Protected routes */}
         {isAuthenticated ? (
           <>
-            {/* If authenticated but registration not complete, redirect to auth flow */}
-            {!isRegistrationComplete(user) ? (
-              <Route path="/:rest*">{() => <Redirect to="/auth" />}</Route>
-            ) : (
+            {/* Check if registration is complete */}
+            {isRegistrationComplete ? (
               <>
                 {/* Full access for users with completed registration */}
                 {/* Setup routes - onboarding flow (handled by AuthFlow) */}
@@ -109,7 +101,7 @@ export function Routes() {
                 <Route path="/setup/id-verification" component={IdVerificationWrapper} />
                 
                 <Route path="/dashboard" component={DashboardWrapper} />
-                <Route path="/search" component={() => <SearchPage />} />
+                <Route path="/search" component={SearchPage} />
                 <Route path="/bookings" component={BookingPageWrapper} />
                 <Route path="/messages" component={MessagesWrapper} />
                 <Route path="/profile" component={ProfileWrapper} />
@@ -163,6 +155,10 @@ export function Routes() {
                 {/* Default redirect for authenticated users with completed registration */}
                 <Route path="/:rest*">{() => <Redirect to="/dashboard" />}</Route>
               </>
+            ) : (
+              /* Authenticated but registration not complete - no catch-all redirect */
+              /* The Auth page will handle its own redirect when registration is complete */
+              <Route path="/:rest*">{() => <Redirect to="/auth" />}</Route>
             )}
           </>
         ) : (

@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Shield, Clock } from "lucide-react";
 import ProfileCard from "./ProfileCard";
-import VerificationBanner from "./VerificationBanner";
 import { useDashboard } from "@/hooks";
 import { safetyTips } from "@/const/safety";
 
@@ -10,14 +9,12 @@ interface DashboardProps {
   userName: string;
   onNavigate: (page: string) => void;
   onSelectUser?: (userId: string) => void;
-  verificationStatus?: "pending" | "verified" | "failed";
 }
 
 export default function Dashboard({
   userName,
   onNavigate,
   onSelectUser,
-  verificationStatus = "pending",
 }: DashboardProps) {
   const {
     recentlyOnlineUsers: profileVisitors,
@@ -26,12 +23,6 @@ export default function Dashboard({
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Verification Banner */}
-      <VerificationBanner
-        verificationStatus={verificationStatus}
-        onTryAgain={() => onNavigate("verification-failed")}
-      />
-
       {/* Header */}
       <div className="bg-gradient-to-r from-primary/10 to-chart-1/10 p-4">
         <div className="container mx-auto">

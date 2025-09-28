@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSignOut, useValidateToken } from '@/hooks/useAuth';
@@ -22,6 +22,7 @@ export const useAuthFlow = ({
   const signOutMutation = useSignOut();
   const validateTokenMutation = useValidateToken();
   const [, setLocation] = useLocation();
+  const hasInitialized = useRef(false);
 
   const handleSignOut = useCallback(() => {
     signOutMutation.mutate(undefined, {
@@ -84,10 +85,11 @@ export const useAuthFlow = ({
   }, [validateTokenOnMount, isAuthenticated, user]);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !hasInitialized.current) {
       console.log('🔍 Setting up authenticated user, step:', determineCurrentStep(user));
       initializeFormData(user);
       setCurrentStep(determineCurrentStep(user));
+      hasInitialized.current = true;
     }
   }, [isAuthenticated, user, initializeFormData, setCurrentStep]);
 

@@ -40,7 +40,12 @@ export const usePhoneHandlers = ({
     }
     
     try {
-      await sendCodeMutation.mutateAsync({ phoneNumber: countryCode + phoneNumber });
+      // Remove leading 0 from phone number if it exists (for international format)
+      const phoneNumberWithoutLeadingZero = phoneNumber.startsWith('0') 
+        ? phoneNumber.substring(1) 
+        : phoneNumber;
+      
+      await sendCodeMutation.mutateAsync({ phoneNumber: countryCode + phoneNumberWithoutLeadingZero });
       setCurrentStep("otp");
       startResendTimer();
     } catch (error: any) {
@@ -57,40 +62,14 @@ export const usePhoneHandlers = ({
     
     try {
       const data = await verifyCodeMutation.mutateAsync({ 
-        phoneNumber: countryCode + phoneNumber, 
+        phoneNumber: countryCode + (phoneNumber.startsWith('0') ? phoneNumber.substring(1) : phoneNumber), 
         code: otpCode 
       });
       
       if (data.success && data.token && data.user) {
-        // Check if user has already completed registration
-        const isRegistrationComplete = (user: any) => {
-          if (!user) return false;
-          
-          // Check basic info
-          if (!user.firstName || !user.lastName || !user.dateOfBirth || !user.city) {
-            return false;
-          }
-          
-          // Check preferences
-          if (!user.preferences?.whatFriendsSay || !user.preferences?.drinking || 
-              !user.preferences?.smoking || !user.preferences?.married || !user.preferences?.occupation) {
-            return false;
-          }
-          
-          // Check photos step completion (either has photos or explicitly skipped)
-          if (!user.photos?.length && !user.photosSkipped) {
-            return false;
-          }
-          
-          return true;
-        };
-
-        // If registration is complete, the AuthWrapper will redirect to dashboard
-        // Otherwise, continue with registration flow
-        if (!isRegistrationComplete(data.user)) {
-          setCurrentStep("basicInfo");
-        }
-        // If registration is complete, don't set step - let AuthWrapper handle dashboard redirect
+        // Always go to basicInfo after successful verification
+        // The Auth page will handle redirect to dashboard if registration is already complete
+        setCurrentStep("basicInfo");
       }
     } catch (error: any) {
       setError(error.message || 'Unable to verify code. Please try again.');
@@ -101,9 +80,13 @@ export const usePhoneHandlers = ({
 
   const handleResendCode = useCallback(async () => {
     clearError();
-    
     try {
-      await sendCodeMutation.mutateAsync({ phoneNumber: countryCode + phoneNumber });
+      // Remove leading 0 from phone number if it exists (for international format)
+      const phoneNumberWithoutLeadingZero = phoneNumber.startsWith('0') 
+        ? phoneNumber.substring(1) 
+        : phoneNumber;
+      
+      await sendCodeMutation.mutateAsync({ phoneNumber: countryCode + phoneNumberWithoutLeadingZero });
       startResendTimer();
     } catch (error: any) {
       setError(error.message || 'Unable to resend code. Please try again.');

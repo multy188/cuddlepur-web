@@ -4,7 +4,11 @@ import { useState } from "react";
 
 // Components
 import AuthHeader from "@/components/auth/AuthHeader";
-import AuthStepRenderer from "@/components/auth/AuthStepRenderer";
+import PhoneStep from "@/components/auth/PhoneStep";
+import OtpStepNew from "@/components/auth/OtpStepNew";
+import BasicInfoStepNew from "@/components/auth/BasicInfoStepNew";
+import PreferencesStepNew from "@/components/auth/PreferencesStepNew";
+import PhotosStepNew from "@/components/auth/PhotosStepNew";
 
 // types
 import { AuthStep } from "@/types/auth";
@@ -35,17 +39,70 @@ const AuthFlow = () => {
         onSignOut={handleSignOut}
       />
       <div className="animate-in fade-in-50">
-        <AuthStepRenderer
-          // Global flow state only
-          currentStep={currentStep}
-          isLoading={isLoading}
-          error={error}
-          // Global utilities
-          clearError={clearError}
-          setIsLoading={setIsLoading}
-          setError={setError}
-          setCurrentStep={setCurrentStep}
-        />
+        {(() => {
+          switch (currentStep) {
+            case "phone":
+              return (
+                <PhoneStep
+                  isLoading={isLoading}
+                  error={error}
+                  setIsLoading={setIsLoading}
+                  setError={setError}
+                  setCurrentStep={setCurrentStep}
+                />
+              );
+
+            case "otp":
+              return (
+                <OtpStepNew
+                  isLoading={isLoading}
+                  error={error}
+                  clearError={clearError}
+                  setIsLoading={setIsLoading}
+                  setError={setError}
+                  setCurrentStep={setCurrentStep}
+                />
+              );
+
+            case "basicInfo":
+              return (
+                <BasicInfoStepNew
+                  isLoading={isLoading}
+                  error={error}
+                  clearError={clearError}
+                  setIsLoading={setIsLoading}
+                  setError={setError}
+                  setCurrentStep={setCurrentStep}
+                />
+              );
+
+            case "preferences":
+              return (
+                <PreferencesStepNew
+                  isLoading={isLoading}
+                  error={error}
+                  clearError={clearError}
+                  setIsLoading={setIsLoading}
+                  setError={setError}
+                  setCurrentStep={setCurrentStep}
+                />
+              );
+
+            case "photos":
+              return (
+                <PhotosStepNew
+                  isLoading={isLoading}
+                  error={error}
+                  clearError={clearError}
+                  setIsLoading={setIsLoading}
+                  setError={setError}
+                />
+              );
+
+            default:
+              return null;
+          }
+        })()}
       </div>
     </div>
   );

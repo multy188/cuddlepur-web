@@ -2,10 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FormField, FormItem, FormControl, FormMessage, Form } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+  Form,
+} from "@/components/ui/form";
 import { Phone, AlertCircle, Loader2 } from "lucide-react";
 import CountryCodeSelect from "@/components/CountryCodeSelect";
-import { sanitizePhoneNumber } from "@/utils/authValidation";
+import { sanitizePhoneNumber, formatPhoneNumber } from "@/utils/authValidation";
 import { usePhoneForm } from "@/hooks/usePhoneForm";
 import { usePhoneActions } from "@/hooks/usePhoneActions";
 import { AuthStep } from "@/types/auth";
@@ -14,7 +20,6 @@ import { useLocation } from "wouter";
 interface PhoneStepProps {
   isLoading: boolean;
   error: string;
-  clearError: () => void;
   setIsLoading: (loading: boolean) => void;
   setError: (error: string) => void;
   setCurrentStep: (step: AuthStep) => void;
@@ -23,35 +28,19 @@ interface PhoneStepProps {
 const PhoneStep = ({
   isLoading,
   error,
-  clearError,
   setIsLoading,
   setError,
-  setCurrentStep
+  setCurrentStep,
 }: PhoneStepProps) => {
   const [, setLocation] = useLocation();
-  
+
   const form = usePhoneForm();
-  
-  const startResendTimer = () => {
-    // Timer logic can be added here if needed for UI feedback
-    // For now, we just need the function for usePhoneActions
-  };
-  
+
   const phoneActions = usePhoneActions({
-    clearError,
     setIsLoading,
     setError,
     setCurrentStep,
-    startResendTimer
   });
-
-  const handleNavigateTerms = () => {
-    setLocation("/terms");
-  };
-
-  const handleNavigatePrivacy = () => {
-    setLocation("/privacy");
-  };
 
   return (
     <Card className="p-6 max-w-md mx-auto">
@@ -64,14 +53,17 @@ const PhoneStep = ({
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(phoneActions.sendVerificationCode)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(phoneActions.sendVerificationCode)}
+          className="space-y-4"
+        >
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="flex gap-2">
             <FormField
               control={form.control}
@@ -79,8 +71,8 @@ const PhoneStep = ({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <CountryCodeSelect 
-                      value={field.value} 
+                    <CountryCodeSelect
+                      value={field.value}
                       onValueChange={field.onChange}
                       disabled={isLoading}
                     />
@@ -88,7 +80,7 @@ const PhoneStep = ({
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="phoneNumber"
@@ -96,14 +88,16 @@ const PhoneStep = ({
                 <FormItem className="flex-1">
                   <FormControl>
                     <Input
-                      placeholder="Phone number"
-                      {...field}
-                      onChange={(e) => field.onChange(sanitizePhoneNumber(e.target.value))}
+                      placeholder="xxx xxx-xxxx"
+                      value={formatPhoneNumber(field.value || '')}
+                      onChange={(e) => {
+                        const sanitized = sanitizePhoneNumber(e.target.value);
+                        field.onChange(sanitized);
+                      }}
                       disabled={isLoading}
                       type="tel"
                       inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={10}
+                      maxLength={20} // Increased to account for formatting characters
                     />
                   </FormControl>
                   <FormMessage />
@@ -112,9 +106,9 @@ const PhoneStep = ({
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
+          <Button
+            type="submit"
+            className="w-full"
             disabled={isLoading || !form.formState.isValid}
           >
             {isLoading ? (
@@ -123,7 +117,7 @@ const PhoneStep = ({
                 Sending Code...
               </>
             ) : (
-              'Send Verification Code'
+              "Send Verification Code"
             )}
           </Button>
         </form>
@@ -131,16 +125,16 @@ const PhoneStep = ({
 
       <p className="text-xs text-muted-foreground text-center mt-4">
         By continuing, you agree to our{" "}
-        <button 
-          className="text-primary underline hover:text-primary/80" 
-          onClick={handleNavigateTerms}
+        <button
+          className="text-primary underline hover:text-primary/80"
+          onClick={() => setLocation("/terms")}
         >
           Terms of Service
         </button>{" "}
         and{" "}
-        <button 
-          className="text-primary underline hover:text-primary/80" 
-          onClick={handleNavigatePrivacy}
+        <button
+          className="text-primary underline hover:text-primary/80"
+          onClick={() => setLocation("/privacy")}
         >
           Privacy Policy
         </button>

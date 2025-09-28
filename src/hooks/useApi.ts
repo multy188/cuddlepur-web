@@ -27,13 +27,14 @@ const useAuthenticatedFetch = () => {
   };
 };
 
-// Search professionals
-export const useProfessionals = (searchParams: {
+// Search users (cuddlers and professionals)
+export const useUsers = (searchParams: {
   location?: string;
   serviceType?: string;
   minRate?: number;
   maxRate?: number;
   isAvailable?: boolean;
+  userType?: string;
   page?: number;
   limit?: number;
 } = {}) => {
@@ -47,10 +48,24 @@ export const useProfessionals = (searchParams: {
   });
 
   return useQuery({
-    queryKey: ['professionals', searchParams],
-    queryFn: () => authenticatedFetch(`/user/search/professionals?${queryString}`),
+    queryKey: ['users', searchParams],
+    queryFn: () => authenticatedFetch(`/user/search?${queryString}`),
     staleTime: 2 * 60 * 1000 // 2 minutes
   });
+};
+
+// Legacy alias for backward compatibility
+export const useProfessionals = (searchParams: {
+  location?: string;
+  serviceType?: string;
+  minRate?: number;
+  maxRate?: number;
+  isAvailable?: boolean;
+  page?: number;
+  limit?: number;
+} = {}) => {
+  // Add userType: 'PROFESSIONAL' to maintain backward compatibility
+  return useUsers({ ...searchParams, userType: 'PROFESSIONAL' });
 };
 
 // Get user by ID

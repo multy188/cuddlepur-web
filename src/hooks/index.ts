@@ -1,5 +1,5 @@
 // Export all custom hooks
-export { useProfessionals } from './use-professionals';
+export { useProfessionals, useAllUsers } from './use-professionals';
 export { useNotifications } from './use-notifications';
 export { useBookingRequests } from './use-booking-requests';
 export { useEarnings } from './use-earnings';
