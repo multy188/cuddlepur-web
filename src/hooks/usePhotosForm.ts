@@ -43,15 +43,10 @@ export const usePhotosForm = ({
     await photoHandlers.handlePhotoSubmit();
   }, [photoHandlers]);
 
-  const handleSkip = useCallback(() => {
-    onComplete();
-  }, [onComplete]);
-
   return {
     uploadedPhotos,
     handlePhotoUpload,
     removePhoto,
-    handleSubmit,
-    handleSkip
+    handleSubmit
   };
 };

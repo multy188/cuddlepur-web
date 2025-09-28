@@ -12,8 +12,8 @@ export const isRegistrationComplete = (user: any): boolean => {
     return false;
   }
   
-  // Check photos step completion (either has photos or explicitly skipped)
-  if (!user.photos?.length && !user.photosSkipped) {
+  // Check photos step completion (must have at least one photo)
+  if (!user.photos?.length) {
     return false;
   }
   

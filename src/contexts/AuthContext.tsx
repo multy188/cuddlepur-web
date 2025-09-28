@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
+export interface UserPhoto {
+  id: string;
+  url: string;
+  order: number;
+  isProfilePicture: boolean;
+  createdAt: string;
+}
+
 export interface User {
   id: string;
   phoneNumber: string;
@@ -25,6 +33,7 @@ export interface User {
   idVerificationStatus: 'NOT_SUBMITTED' | 'PENDING' | 'VERIFIED' | 'FAILED';
   createdAt: string;
   lastLoginAt?: string;
+  photos?: UserPhoto[];
 }
 
 interface AuthContextType {
@@ -87,7 +96,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Auth /me response:', data);
         if (data.success && data.user) {
+          console.log('User photos in auth:', data.user.photos);
           setUser(data.user);
           localStorage.setItem(USER_KEY, JSON.stringify(data.user));
         }

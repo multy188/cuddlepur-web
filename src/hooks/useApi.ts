@@ -13,13 +13,25 @@ const useAuthenticatedFetch = () => {
       ...options.headers
     };
 
+    console.log(`🔍 Making request to: ${API_BASE_URL}${url}`);
+    console.log(`🔑 Token present: ${!!token}`);
+
     const response = await fetch(`${API_BASE_URL}${url}`, {
       ...options,
       headers
     });
 
+    console.log(`📊 Response status: ${response.status}`);
+
     if (!response.ok) {
-      const error = await response.json();
+      const errorText = await response.text();
+      console.error(`❌ Request failed:`, errorText);
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch (e) {
+        error = { error: errorText };
+      }
       throw new Error(error.error || `HTTP error! status: ${response.status}`);
     }
 
@@ -161,6 +173,94 @@ export const useToggleAvailability = () => {
         updateUser(data.user);
         queryClient.invalidateQueries({ queryKey: ['user'] });
       }
+    }
+  });
+};
+
+// User Photos Management
+export interface UserPhoto {
+  id: string;
+  url: string;
+  order: number;
+  isProfilePicture: boolean;
+  createdAt: string;
+}
+
+// Get user photos
+export const useUserPhotos = () => {
+  const authenticatedFetch = useAuthenticatedFetch();
+  const { token } = useAuth();
+
+  return useQuery({
+    queryKey: ['userPhotos'],
+    queryFn: async () => {
+      const response = await authenticatedFetch('/user/photos');
+      return response.photos as UserPhoto[];
+    },
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000 // 5 minutes
+  });
+};
+
+// Upload photos
+export const useUploadPhotos = () => {
+  const { token } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch(`${API_BASE_URL}/user/photos`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload photos');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userPhotos'] });
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+    }
+  });
+};
+
+// Delete photo
+export const useDeletePhoto = () => {
+  const authenticatedFetch = useAuthenticatedFetch();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (photoId: string) =>
+      authenticatedFetch(`/user/photos/${photoId}`, {
+        method: 'DELETE'
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userPhotos'] });
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+    }
+  });
+};
+
+// Set profile picture
+export const useSetProfilePicture = () => {
+  const authenticatedFetch = useAuthenticatedFetch();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (photoId: string) =>
+      authenticatedFetch(`/user/photos/${photoId}/profile-picture`, {
+        method: 'PUT'
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userPhotos'] });
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
     }
   });
 };

@@ -6,8 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   User, 
   Camera, 
@@ -20,10 +18,14 @@ import {
   AlertCircle,
   Star,
   Briefcase,
-  Badge as BadgeIcon
+  Badge as BadgeIcon,
+  X,
+  Upload,
+  Check
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUpdateProfile } from "@/hooks/useAuth";
+import { useUserPhotos, useUploadPhotos, useDeletePhoto, useSetProfilePicture, UserPhoto } from "@/hooks/useApi";
 
 interface ProfileProps {
   onSignOut: () => void;
@@ -32,10 +34,18 @@ interface ProfileProps {
   onApplyProfessional?: () => void;
 }
 
-export default function Profile({ onSignOut, onBack, initialEditMode = false, onApplyProfessional }: ProfileProps) {
+export default function Profile({ onSignOut, initialEditMode = false, onApplyProfessional }: ProfileProps) {
   const [isEditing, setIsEditing] = useState(initialEditMode);
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const updateProfile = useUpdateProfile();
+  
+  // Photo management hooks
+  const { data: photos, isLoading: photosLoading, error: photosError } = useUserPhotos();
+  const uploadPhotos = useUploadPhotos();
+  const deletePhoto = useDeletePhoto();
+  const setProfilePicture = useSetProfilePicture();
+  
+  console.log('📸 Photos state:', { photos, photosLoading, photosError });
   
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
@@ -93,24 +103,6 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false, on
     }
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    // Reset form data to original user data
-    setFormData({
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      bio: user?.bio || '',
-      city: user?.city || '',
-      state: user?.state || '',
-      country: user?.country || '',
-      dateOfBirth: user?.dateOfBirth ? user.dateOfBirth.split('T')[0] : '',
-      gender: user?.gender || '',
-      hourlyRate: user?.hourlyRate || '',
-      services: user?.services || [],
-      experience: user?.experience || '',
-      preferences: user?.preferences || {}
-    });
-  };
 
   if (!user) {
     return <div>Loading...</div>;
@@ -118,6 +110,9 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false, on
 
   const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
   const isProfessional = user.userType === 'PROFESSIONAL';
+  
+  // Get the current profile picture URL
+  const profilePictureUrl = user.photos?.find(p => p.isProfilePicture)?.url || user.profilePicture || '';
 
   return (
     <div className="container mx-auto p-4 space-y-6 max-w-4xl pb-24">
@@ -127,7 +122,7 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false, on
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative">
               <Avatar className="w-24 h-24">
-                <AvatarImage src={user.profilePicture || ''} alt="Profile" />
+                <AvatarImage src={profilePictureUrl} alt="Profile" />
                 <AvatarFallback>
                   <User className="w-12 h-12" />
                 </AvatarFallback>
@@ -202,27 +197,123 @@ export default function Profile({ onSignOut, onBack, initialEditMode = false, on
         </CardContent>
       </Card>
 
-      {/* Profile Picture Section */}
-      {user.profilePicture && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+
+      {/* Photo Gallery */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <Camera className="w-5 h-5" />
-              Profile Picture
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center">
-              <img
-                src={user.profilePicture}
-                alt="Profile"
-                className="w-32 h-32 object-cover rounded-lg"
-                data-testid="profile-picture"
-              />
+              Photo Gallery
             </div>
-          </CardContent>
-        </Card>
-      )}
+            {isEditing && (
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      const formData = new FormData();
+                      Array.from(e.target.files).forEach((file) => {
+                        formData.append('photos', file);
+                      });
+                      uploadPhotos.mutate(formData);
+                    }
+                  }}
+                  className="hidden"
+                  id="photo-upload"
+                  disabled={uploadPhotos.isPending}
+                />
+                <label htmlFor="photo-upload">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    disabled={uploadPhotos.isPending || (photos?.length || 0) >= 10}
+                  >
+                    <span>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Add Photos
+                    </span>
+                  </Button>
+                </label>
+              </div>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {photosLoading ? (
+            <div className="text-center py-8">Loading photos...</div>
+          ) : photos && photos.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {photos.map((photo: UserPhoto) => (
+                <div key={photo.id} className="relative group">
+                  <img
+                    src={photo.url}
+                    alt="User photo"
+                    className="w-full aspect-square object-cover rounded-lg"
+                  />
+                  {photo.isProfilePicture && (
+                    <Badge 
+                      className="absolute top-2 left-2"
+                      variant="secondary"
+                    >
+                      Profile
+                    </Badge>
+                  )}
+                  {isEditing && (
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded-lg flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                      {!photo.isProfilePicture && (
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="h-8 w-8"
+                          onClick={() => setProfilePicture.mutate(photo.id)}
+                          disabled={setProfilePicture.isPending}
+                          title="Set as profile picture"
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="h-8 w-8"
+                        onClick={() => deletePhoto.mutate(photo.id)}
+                        disabled={deletePhoto.isPending}
+                        title="Delete photo"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Camera className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground mb-4">No photos uploaded yet</p>
+              {isEditing && (
+                <label htmlFor="photo-upload">
+                  <Button variant="outline" asChild>
+                    <span>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Your First Photo
+                    </span>
+                  </Button>
+                </label>
+              )}
+            </div>
+          )}
+          {photos && photos.length > 0 && (
+            <p className="text-sm text-muted-foreground mt-4">
+              {photos.length}/10 photos uploaded
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* About You Section */}

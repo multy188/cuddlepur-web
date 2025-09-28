@@ -26,8 +26,7 @@ const PhotosStepNew = ({
     uploadedPhotos,
     handlePhotoUpload,
     removePhoto,
-    handleSubmit,
-    handleSkip,
+    handleSubmit
   } = usePhotosForm({ 
     setIsLoading,
     setError,
@@ -38,7 +37,7 @@ const PhotosStepNew = ({
     <Card className="p-6 max-w-md mx-auto">
       <div className="text-center mb-6">
         <ImagePlus className="h-12 w-12 text-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Add Your Photos (Optional)</h2>
+        <h2 className="text-2xl font-bold mb-2">Add Your Photos</h2>
         <p className="text-muted-foreground">
           Upload up to {VALIDATION_RULES.MAX_PHOTOS} photos to complete your
           profile
@@ -103,25 +102,10 @@ const PhotosStepNew = ({
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleSkip}
-            className="flex-1"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Completing...
-              </>
-            ) : (
-              "Skip for now"
-            )}
-          </Button>
+        <div className="flex">
           <Button
             onClick={handleSubmit}
-            className="flex-1"
+            className="w-full"
             disabled={uploadedPhotos.length === 0 || isLoading}
           >
             {isLoading ? (
