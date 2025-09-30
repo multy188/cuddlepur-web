@@ -6,6 +6,7 @@ export { useEarnings } from './use-earnings';
 export { useDashboard } from './use-dashboard';
 export { useMessages } from './use-messages';
 export { useSafety } from './use-safety';
+export { useUserDetails, useUsersDetails } from './useUserDetails';
 
 // Re-export existing hooks
 export { useIsMobile } from './use-mobile';

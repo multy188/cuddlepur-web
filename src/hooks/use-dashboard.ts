@@ -1,20 +1,20 @@
 import { useState, useMemo } from 'react';
-import { 
-  professionalDashboardData, 
-  upcomingBookings, 
-  newRequests, 
-  recentlyOnlineUsers, 
-  featuredProfessionals 
+import {
+  professionalDashboardData,
+  upcomingBookings,
+  newRequests,
+  featuredProfessionals
 } from '@mock/dashboardData';
-import type { 
-  ProfessionalDashboardData, 
-  UpcomingBooking, 
-  NewRequest, 
-  User, 
-  Professional 
+import type {
+  ProfessionalDashboardData,
+  UpcomingBooking,
+  NewRequest,
+  Professional
 } from '@types';
 import femaleProfile from "@assets/generated_images/Professional_profile_photo_f962fff8.png";
 import maleProfile from "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png";
+import { useUsers } from './useApi';
+import { useUsersDetails } from './useUserDetails';
 
 export function useDashboard() {
   const [availability, setAvailability] = useState({
@@ -23,16 +23,36 @@ export function useDashboard() {
     evening: false
   });
 
+  // Fetch 10 most recently created users
+  const { data: recentUsersData, isLoading: isLoadingRecentUsers } = useUsers({
+    limit: 10,
+    page: 1
+  });
+
+  console.log('📊 Recent users data:', {
+    hasData: !!recentUsersData,
+    users: recentUsersData?.users?.length || 0,
+    isLoading: isLoadingRecentUsers
+  });
+
+  // Use the reusable hook to format user details
+  const formattedUsers = useUsersDetails(recentUsersData?.users);
+
+  console.log('👥 Formatted users:', formattedUsers.length);
+
   const recentlyOnlineWithImages = useMemo(() => {
-    return recentlyOnlineUsers.map(user => ({
-      ...user,
-      image: user.image === "@assets/generated_images/Professional_profile_photo_f962fff8.png" 
-        ? femaleProfile 
-        : user.image === "@assets/generated_images/Male_professional_profile_photo_38a68cd4.png"
-        ? maleProfile
-        : user.image
+    const result = formattedUsers.map((user) => ({
+      id: user.id,
+      name: user.name,
+      age: user.ageDisplay,
+      location: user.location,
+      image: user.profilePicture || femaleProfile,
+      time: 'Recently joined'
     }));
-  }, []);
+
+    console.log('🖼️ Recently online with images:', result.length);
+    return result;
+  }, [formattedUsers]);
 
   const featuredProfessionalsWithImages = useMemo(() => {
     return featuredProfessionals.map(prof => ({
@@ -60,11 +80,12 @@ export function useDashboard() {
     newRequests,
     availability,
     updateAvailability,
-    
+
     // General Dashboard Data
     recentlyOnlineUsers: recentlyOnlineWithImages,
     featuredProfessionals: featuredProfessionalsWithImages,
-    
+    isLoadingRecentUsers,
+
     // Computed values
     totalEarnings: professionalDashboardData.earnings.thisMonth,
     growthRate: professionalDashboardData.earnings.growth,

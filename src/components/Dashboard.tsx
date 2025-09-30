@@ -121,37 +121,74 @@ export default function Dashboard({
           </Button>
         </Card>
 
-        {/* Online Professionals */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold flex items-center">
-              <Shield className="h-5 w-5 mr-2 text-chart-1" />
-              Professionals Online Now
-            </h3>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigate("search")}
-                data-testid="button-view-all-professionals"
-              >
-                View All
-              </Button>
+        {/* How It Works */}
+        <Card className="p-6">
+          <h3 className="font-semibold text-xl mb-6 text-center">
+            How It Works
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Step 1: Search */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-32 h-32 mb-4">
+                <img
+                  src="/assets/search.svg"
+                  alt="Search"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h4 className="font-semibold mb-2">Search</h4>
+              <p className="text-sm text-muted-foreground">
+                Browse profiles and find a potential cuddler that matches your preferences
+              </p>
+            </div>
+
+            {/* Step 2: Chat */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-32 h-32 mb-4">
+                <img
+                  src="/assets/text.svg"
+                  alt="Chat"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h4 className="font-semibold mb-2">Connect</h4>
+              <p className="text-sm text-muted-foreground">
+                Chat with potential cuddlers to see if there's mutual interest and compatibility
+              </p>
+            </div>
+
+            {/* Step 3: Meet */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-32 h-32 mb-4">
+                <img
+                  src="/assets/meet.svg"
+                  alt="Meet"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h4 className="font-semibold mb-2">Meet Up</h4>
+              <p className="text-sm text-muted-foreground">
+                Schedule and meet your cuddler in a safe, comfortable location
+              </p>
+            </div>
+
+            {/* Step 4: Cuddle */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-32 h-32 mb-4">
+                <img
+                  src="/assets/cuddle.svg"
+                  alt="Cuddle"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h4 className="font-semibold mb-2">Cuddle</h4>
+              <p className="text-sm text-muted-foreground">
+                Enjoy safe, platonic cuddling and companionship
+              </p>
             </div>
           </div>
-
-          <div className="space-y-4">
-            {onlineProfessionals.map((professional) => (
-              <ProfileCard
-                key={professional.id}
-                {...professional}
-                onViewProfile={(id) => console.log("View profile:", id)}
-                onBookSession={(id) => console.log("Book session:", id)}
-                onLike={(id) => console.log("Like profile:", id)}
-              />
-            ))}
-          </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
