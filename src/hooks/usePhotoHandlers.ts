@@ -6,6 +6,7 @@ import { VALIDATION_RULES } from '@/constants/auth';
 interface UsePhotoHandlersProps {
   uploadedPhotos: File[];
   setUploadedPhotos: (photos: File[] | ((prev: File[]) => File[])) => void;
+  profilePictureIndex: number;
   clearError: () => void;
   setIsLoading: (loading: boolean) => void;
   setError: (error: string) => void;
@@ -15,6 +16,7 @@ interface UsePhotoHandlersProps {
 export const usePhotoHandlers = ({
   uploadedPhotos,
   setUploadedPhotos,
+  profilePictureIndex,
   clearError,
   setIsLoading,
   setError,
@@ -47,7 +49,12 @@ export const usePhotoHandlers = ({
     try {
       if (uploadedPhotos.length > 0) {
         const formData = new FormData();
-        uploadedPhotos.forEach(photo => formData.append('photos', photo));
+        uploadedPhotos.forEach((photo, index) => {
+          formData.append('photos', photo);
+          if (index === profilePictureIndex) {
+            formData.append('profilePictureIndex', index.toString());
+          }
+        });
         await uploadPhotosMutation.mutateAsync(formData);
       }
 
@@ -57,7 +64,7 @@ export const usePhotoHandlers = ({
     } finally {
       setIsLoading(false);
     }
-  }, [uploadedPhotos, clearError, uploadPhotosMutation, onComplete, setIsLoading, setError]);
+  }, [uploadedPhotos, profilePictureIndex, clearError, uploadPhotosMutation, onComplete, setIsLoading, setError]);
 
   return {
     handlePhotoUpload,

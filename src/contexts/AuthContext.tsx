@@ -23,6 +23,8 @@ export interface User {
   city?: string;
   state?: string;
   country?: string;
+  latitude?: number;
+  longitude?: number;
   hourlyRate?: number;
   isAvailable?: boolean;
   services?: string[];

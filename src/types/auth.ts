@@ -4,7 +4,9 @@ export interface UserInfo {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
-  location: string;
+  latitude?: number;
+  longitude?: number;
+  gender: string;
 }
 
 export interface Preferences {

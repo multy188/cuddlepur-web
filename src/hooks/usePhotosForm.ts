@@ -14,6 +14,7 @@ export const usePhotosForm = ({
   clearError
 }: UsePhotosFormProps) => {
   const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([]);
+  const [profilePictureIndex, setProfilePictureIndex] = useState<number>(0);
 
   const [, setLocation] = useLocation();
 
@@ -24,6 +25,7 @@ export const usePhotosForm = ({
   const photoHandlers = usePhotoHandlers({
     uploadedPhotos,
     setUploadedPhotos,
+    profilePictureIndex,
     clearError,
     setIsLoading,
     setError,
@@ -36,8 +38,13 @@ export const usePhotosForm = ({
   }, [photoHandlers]);
 
   const removePhoto = useCallback((index: number) => {
+    if (profilePictureIndex === index) {
+      setProfilePictureIndex(0);
+    } else if (profilePictureIndex > index) {
+      setProfilePictureIndex(prev => prev - 1);
+    }
     photoHandlers.removePhoto(index);
-  }, [photoHandlers]);
+  }, [photoHandlers, profilePictureIndex]);
 
   const handleSubmit = useCallback(async () => {
     await photoHandlers.handlePhotoSubmit();
@@ -45,6 +52,8 @@ export const usePhotosForm = ({
 
   return {
     uploadedPhotos,
+    profilePictureIndex,
+    setProfilePictureIndex,
     handlePhotoUpload,
     removePhoto,
     handleSubmit

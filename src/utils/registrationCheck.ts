@@ -2,7 +2,7 @@ export const isRegistrationComplete = (user: any): boolean => {
   if (!user) return false;
   
   // Check basic info
-  if (!user.firstName || !user.lastName || !user.dateOfBirth || !user.city) {
+  if (!user.firstName || !user.lastName || !user.dateOfBirth || !user.gender) {
     return false;
   }
   

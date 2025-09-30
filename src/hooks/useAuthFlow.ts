@@ -60,7 +60,9 @@ export const useAuthFlow = ({
       firstName: userData.firstName || "",
       lastName: userData.lastName || "",
       dateOfBirth: userData.dateOfBirth ? userData.dateOfBirth.split('T')[0] : "",
-      location: userData.city || ""
+      latitude: userData.latitude,
+      longitude: userData.longitude,
+      gender: userData.gender || ""
     });
 
     setPreferences({
@@ -91,7 +93,7 @@ export const useAuthFlow = ({
       setCurrentStep(determineCurrentStep(user));
       hasInitialized.current = true;
     }
-  }, [isAuthenticated, user, initializeFormData, setCurrentStep]);
+  }, [isAuthenticated, user, initializeFormData]);
 
   return {
     handleSignOut,

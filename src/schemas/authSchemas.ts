@@ -18,8 +18,20 @@ export const otpSchema = z.object({
 export const userInfoSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50, "First name too long"),
   lastName: z.string().min(1, "Last name is required").max(50, "Last name too long"),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
-  location: z.string().min(1, "Location is required")
+  dateOfBirth: z.string().min(1, "Date of birth is required").refine((date) => {
+    const birthDate = new Date(date);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      return false;
+    }
+    return true;
+  }, "You must be at least 18 years old"),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  gender: z.string().min(1, "Gender is required")
 });
 
 export const preferencesSchema = z.object({

@@ -1,6 +1,6 @@
 // Hooks
 import { useAuthFlow } from "@/hooks/useAuthFlow";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Components
 import AuthHeader from "@/components/auth/AuthHeader";
@@ -12,23 +12,45 @@ import PhotosStepNew from "@/components/auth/PhotosStepNew";
 
 // types
 import { AuthStep } from "@/types/auth";
+import { Loader2 } from "lucide-react";
 
 const AuthFlow = () => {
-  // State management - only global flow state
+  // State management - initialize with phone step
   const [currentStep, setCurrentStep] = useState<AuthStep>("phone");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isInitializing, setIsInitializing] = useState(true);
 
   // Utility functions
-  const clearError = () => setError("");
+  const clearError = useCallback(() => setError(""), []);
+
+  // Memoized callbacks to prevent infinite loops
+  const handleSetCurrentStep = useCallback((step: AuthStep) => setCurrentStep(step), []);
+  const handleSetError = useCallback((error: string) => setError(error), []);
+  const handleSetUserInfo = useCallback(() => {}, []);
+  const handleSetPreferences = useCallback(() => {}, []);
 
   // Auth flow logic
   const { handleSignOut, signOutPending, isAuthenticated } = useAuthFlow({
-    setCurrentStep: setCurrentStep,
-    setError: setError,
-    setUserInfo: () => {}, // These will be handled in individual components now
-    setPreferences: () => {},
+    setCurrentStep: handleSetCurrentStep,
+    setError: handleSetError,
+    setUserInfo: handleSetUserInfo,
+    setPreferences: handleSetPreferences,
   });
+
+  // Set initializing to false after auth flow has initialized
+  useEffect(() => {
+    const timer = setTimeout(() => setIsInitializing(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-background p-4 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4">

@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, AlertCircle, Loader2, X, Upload } from "lucide-react";
+import { ImagePlus, AlertCircle, Loader2, X, Upload, Star } from "lucide-react";
 import { VALIDATION_RULES } from "@/constants/auth";
 import { usePhotosForm } from "@/hooks/usePhotosForm";
 
@@ -24,10 +24,12 @@ const PhotosStepNew = ({
 
   const {
     uploadedPhotos,
+    profilePictureIndex,
+    setProfilePictureIndex,
     handlePhotoUpload,
     removePhoto,
     handleSubmit
-  } = usePhotosForm({ 
+  } = usePhotosForm({
     setIsLoading,
     setError,
     clearError,
@@ -76,28 +78,42 @@ const PhotosStepNew = ({
 
         {/* Photo Preview Grid */}
         {uploadedPhotos.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {uploadedPhotos.map((photo, index) => (
-              <div
-                key={index}
-                className="relative group"
-              >
-                <img
-                  src={URL.createObjectURL(photo)}
-                  alt={`Photo ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-md"
-                />
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => removePhoto(index)}
-                  disabled={isLoading}
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Click the star to set a profile picture
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {uploadedPhotos.map((photo, index) => (
+                <div
+                  key={index}
+                  className="relative group"
                 >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
+                  <div className="relative w-full h-24">
+                    <img
+                      src={URL.createObjectURL(photo)}
+                      alt={`Photo ${index + 1}`}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                    <button
+                      className="absolute top-1 left-1 p-1 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                      onClick={() => setProfilePictureIndex(index)}
+                      disabled={isLoading}
+                      title="Set as profile picture"
+                    >
+                      <Star className={`h-4 w-4 text-white ${profilePictureIndex === index ? 'fill-white' : ''}`} />
+                    </button>
+                    <button
+                      className="absolute bottom-1 right-1 p-1 rounded-full bg-black/50 hover:bg-red-500/70 transition-colors opacity-0 group-hover:opacity-100"
+                      onClick={() => removePhoto(index)}
+                      disabled={isLoading}
+                      title="Remove photo"
+                    >
+                      <X className="h-4 w-4 text-white" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

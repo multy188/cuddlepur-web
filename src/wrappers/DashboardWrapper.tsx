@@ -16,11 +16,11 @@ export default function DashboardWrapper() {
       }
 
       // Check if user has completed all required registration steps
-      const hasBasicInfo = user.firstName && user.lastName && user.dateOfBirth && user.city;
-      const hasPreferences = user.preferences?.whatFriendsSay && 
-                            user.preferences?.drinking && 
-                            user.preferences?.smoking && 
-                            user.preferences?.married && 
+      const hasBasicInfo = user.firstName && user.lastName && user.dateOfBirth && user.gender;
+      const hasPreferences = user.preferences?.whatFriendsSay &&
+                            user.preferences?.drinking &&
+                            user.preferences?.smoking &&
+                            user.preferences?.married &&
                             user.preferences?.occupation;
       
       if (!hasBasicInfo || !hasPreferences) {

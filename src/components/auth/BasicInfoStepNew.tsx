@@ -4,10 +4,10 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "@/components/ui/form";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertCircle, Loader2, MapPin } from "lucide-react";
 import { useBasicInfoForm } from "@/hooks/useBasicInfoForm";
 import { AuthStep } from "@/types/auth";
-import LocationSuggestions from "./LocationSuggestions";
 
 interface BasicInfoStepNewProps {
   isLoading: boolean;
@@ -28,12 +28,9 @@ const BasicInfoStepNew = ({
 }: BasicInfoStepNewProps) => {
   const {
     form,
-    filteredSuggestions,
-    showSuggestions,
-    handleLocationChange,
-    handleLocationFocus,
-    handleLocationBlur,
-    handleSuggestionClick,
+    locationSet,
+    gettingLocation,
+    handleGetLocation,
     handleSubmit
   } = useBasicInfoForm({
     setCurrentStep,
@@ -97,7 +94,7 @@ const BasicInfoStepNew = ({
                     {...field} 
                     type="date" 
                     disabled={isLoading}
-                    max={new Date().toISOString().split('T')[0]}
+                    max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                   />
                 </FormControl>
                 <FormMessage />
@@ -107,28 +104,73 @@ const BasicInfoStepNew = ({
 
           <FormField
             control={form.control}
-            name="location"
+            name="gender"
             render={({ field }) => (
               <FormItem>
-                <FormControl>
-                  <LocationSuggestions
-                    location={field.value}
-                    filteredSuggestions={filteredSuggestions}
-                    showSuggestions={showSuggestions}
-                    onLocationChange={handleLocationChange}
-                    onLocationFocus={handleLocationFocus}
-                    onLocationBlur={handleLocationBlur}
-                    onSuggestionClick={handleSuggestionClick}
-                  />
-                </FormControl>
+                <FormLabel>Gender</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your gender" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Non-binary">Non-binary</SelectItem>
+                    <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button 
-            type="submit" 
-            className="w-full" 
+          {/* Location Button */}
+          <div className="space-y-2">
+            <Label>Location</Label>
+            {!locationSet ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-start"
+                onClick={handleGetLocation}
+                disabled={gettingLocation || isLoading}
+              >
+                {gettingLocation ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Getting location...
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Set My Location
+                  </>
+                )}
+              </Button>
+            ) : (
+              <div className="flex items-center justify-between p-3 bg-muted rounded-md">
+                <div className="flex items-center text-sm">
+                  <MapPin className="mr-2 h-4 w-4 text-green-600" />
+                  <span className="text-green-600 font-medium">Location set</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleGetLocation}
+                  disabled={gettingLocation || isLoading}
+                >
+                  Update
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full"
             disabled={isLoading || !form.formState.isValid}
           >
             {isLoading ? (

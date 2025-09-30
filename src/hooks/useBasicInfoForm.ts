@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userInfoSchema, UserInfoFormData } from '@/schemas/authSchemas';
 import { useFormHandlers } from './useFormHandlers';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthStep, Preferences } from '@/types/auth';
-import { GHANA_CITIES } from '@/constants/auth';
 
 interface UseBasicInfoFormProps {
   setCurrentStep: (step: AuthStep) => void;
@@ -21,16 +20,20 @@ export const useBasicInfoForm = ({
   clearError
 }: UseBasicInfoFormProps) => {
   const { user } = useAuth();
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [locationSet, setLocationSet] = useState(
+    user?.latitude !== undefined && user?.longitude !== undefined
+  );
+  const [gettingLocation, setGettingLocation] = useState(false);
 
   const form = useForm<UserInfoFormData>({
     resolver: zodResolver(userInfoSchema),
     defaultValues: {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
-      dateOfBirth: user?.dateOfBirth || "",
-      location: user?.city || ""
+      dateOfBirth: user?.dateOfBirth ? user.dateOfBirth.split('T')[0] : "",
+      latitude: user?.latitude,
+      longitude: user?.longitude,
+      gender: user?.gender || ""
     },
     mode: "onChange"
   });
@@ -55,50 +58,46 @@ export const useBasicInfoForm = ({
     setCurrentStep,
   });
 
-  const handleLocationChange = (value: string) => {
-    form.setValue('location', value);
-    if (value.length > 0) {
-      const searchTerm = value.toLowerCase().trim();
-      const filtered = GHANA_CITIES.filter(city => {
-        const cityLower = city.toLowerCase();
-        // Prioritize cities that start with the search term
-        return cityLower.startsWith(searchTerm) || cityLower.includes(searchTerm);
-      }).sort((a, b) => {
-        const aLower = a.toLowerCase();
-        const bLower = b.toLowerCase();
-        const startsWithA = aLower.startsWith(searchTerm);
-        const startsWithB = bLower.startsWith(searchTerm);
-        
-        // Cities starting with search term come first
-        if (startsWithA && !startsWithB) return -1;
-        if (!startsWithA && startsWithB) return 1;
-        
-        // Then alphabetical order
-        return a.localeCompare(b);
-      });
-      
-      setFilteredSuggestions(filtered.slice(0, 8));
-      setShowSuggestions(true);
-    } else {
-      setFilteredSuggestions([]);
-      setShowSuggestions(false);
+  const handleGetLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      return;
     }
-  };
 
-  const handleLocationFocus = () => {
-    if (form.getValues('location').length > 0) {
-      setShowSuggestions(true);
-    }
-  };
+    setGettingLocation(true);
+    clearError();
 
-  const handleLocationBlur = () => {
-    setTimeout(() => setShowSuggestions(false), 200);
-  };
-
-  const handleSuggestionClick = (city: string) => {
-    form.setValue('location', city);
-    setShowSuggestions(false);
-  };
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        form.setValue('latitude', latitude);
+        form.setValue('longitude', longitude);
+        setLocationSet(true);
+        setGettingLocation(false);
+      },
+      (error) => {
+        setGettingLocation(false);
+        let message = "Unable to get your location";
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            message = "Please allow location access to continue";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            message = "Location information is unavailable";
+            break;
+          case error.TIMEOUT:
+            message = "Location request timed out";
+            break;
+        }
+        setError(message);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  }, [form, setError, clearError]);
 
   const handleSubmit = async () => {
     await formHandlers.handleBasicInfoSubmit({
@@ -108,12 +107,9 @@ export const useBasicInfoForm = ({
 
   return {
     form,
-    filteredSuggestions,
-    showSuggestions,
-    handleLocationChange,
-    handleLocationFocus,
-    handleLocationBlur,
-    handleSuggestionClick,
+    locationSet: locationSet || (form.watch('latitude') !== undefined && form.watch('longitude') !== undefined),
+    gettingLocation,
+    handleGetLocation,
     handleSubmit
   };
 };
