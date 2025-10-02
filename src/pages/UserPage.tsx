@@ -66,6 +66,22 @@ export default function UserPage() {
   const profilePictureUrl =
     userData.photos?.find((p) => p.url)?.url || userData.profilePicture || "";
 
+  // Calculate age from dateOfBirth
+  let age: number | string = "Age not set";
+  if (userData.dateOfBirth) {
+    const birthDate = new Date(userData.dateOfBirth);
+    const today = new Date();
+    const calculatedAge = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Adjust age if birthday hasn't occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age = calculatedAge - 1;
+    } else {
+      age = calculatedAge;
+    }
+  }
+
   // Get all user photos for carousel
   const allPhotos = userData.photos && userData.photos.length > 0
     ? userData.photos.map((p) => p.url)
@@ -171,7 +187,7 @@ export default function UserPage() {
               {/* User Details - Single Line */}
               <div className="text-muted-foreground">
                 <span>
-                  {userData.age || "Age not set"} - {userData.gender || "Gender not set"} - {" "}
+                  {age} - {userData.gender || "Gender not set"} - {" "}
                   {userData.city && userData.state && userData.country
                     ? `${userData.city}, ${userData.state}, ${userData.country}`
                     : userData.city && userData.state
