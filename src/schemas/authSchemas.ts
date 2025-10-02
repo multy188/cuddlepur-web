@@ -16,6 +16,10 @@ export const otpSchema = z.object({
 });
 
 export const userInfoSchema = z.object({
+  username: z.string()
+    .min(3, "Username must be at least 3 characters")
+    .max(20, "Username must be less than 20 characters")
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
   firstName: z.string().min(1, "First name is required").max(50, "First name too long"),
   lastName: z.string().min(1, "Last name is required").max(50, "Last name too long"),
   dateOfBirth: z.string().min(1, "Date of birth is required").refine((date) => {
@@ -23,7 +27,7 @@ export const userInfoSchema = z.object({
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       return false;
     }

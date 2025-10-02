@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 interface User {
   id: string;
+  username?: string;
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string;
@@ -16,6 +17,7 @@ interface User {
 interface UserDetails {
   id: string;
   name: string;
+  username?: string;
   fullName: string;
   firstName: string;
   lastName: string;
@@ -91,6 +93,7 @@ export const useUserDetails = (user: User | null | undefined): UserDetails | nul
     return {
       id: user.id,
       name,
+      username: user.username,
       fullName,
       firstName,
       lastName,
@@ -169,6 +172,7 @@ export const useUsersDetails = (users: User[] | null | undefined): UserDetails[]
       return {
         id: user.id,
         name,
+        username: user.username,
         fullName,
         firstName,
         lastName,

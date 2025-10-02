@@ -27,6 +27,7 @@ export function useAllUsers(options: UseUsersOptions = {}) {
   const users = data?.users?.map((user: any) => ({
     id: user.id,
     name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : 'User',
+    username: user.username,
     profileImage: user.profilePicture || null,
     profileImages: user.profilePicture ? [user.profilePicture] : [],
     rating: user.averageRating || 0,
@@ -73,6 +74,7 @@ export function useProfessionals(options: UseProfessionalsOptions = {}) {
   const professionals = data?.users?.map((prof: any) => ({
     id: prof.id,
     name: prof.firstName && prof.lastName ? `${prof.firstName} ${prof.lastName}` : 'Professional',
+    username: prof.username,
     profileImage: prof.profilePicture || null,
     profileImages: prof.profilePicture ? [prof.profilePicture] : [],
     rating: prof.averageRating || 0,
@@ -129,6 +131,7 @@ export function useProfessional(id: string) {
   const professional = {
     id: prof.id,
     name: prof.firstName && prof.lastName ? `${prof.firstName} ${prof.lastName}` : 'Professional',
+    username: prof.username,
     profileImage: prof.profilePicture || null,
     profileImages: prof.photos?.length > 0 ? prof.photos.map((p: any) => p.url) : (prof.profilePicture ? [prof.profilePicture] : []),
     rating: prof.averageRating || 0,

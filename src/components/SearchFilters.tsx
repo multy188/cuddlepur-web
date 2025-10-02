@@ -61,18 +61,6 @@ export default function SearchFilters({
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by name, specialties, or location..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-4"
-          data-testid="input-search"
-        />
-      </form>
-
       {/* Filter Toggle */}
       <div className="flex items-center justify-between">
         <Button

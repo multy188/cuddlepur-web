@@ -44,10 +44,14 @@ export function useDashboard() {
     const result = formattedUsers.map((user) => ({
       id: user.id,
       name: user.name,
+      username: user.username,
       age: user.ageDisplay,
       location: user.location,
       image: user.profilePicture || femaleProfile,
-      time: 'Recently joined'
+      time: 'Recently joined',
+      rating: 0,
+      reviewCount: 0,
+      hourlyRate: 0
     }));
 
     console.log('🖼️ Recently online with images:', result.length);

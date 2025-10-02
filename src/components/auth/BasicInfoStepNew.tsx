@@ -3,9 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Loader2, MapPin } from "lucide-react";
+import { AlertCircle, Loader2, MapPin, Info } from "lucide-react";
 import { useBasicInfoForm } from "@/hooks/useBasicInfoForm";
 import { AuthStep } from "@/types/auth";
 
@@ -57,6 +57,23 @@ const BasicInfoStepNew = ({
           
           <FormField
             control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled={isLoading} placeholder="How you'll appear to others" />
+                </FormControl>
+                <FormDescription className="text-xs">
+                  This is your public display name
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="firstName"
             render={({ field }) => (
               <FormItem>
@@ -64,6 +81,10 @@ const BasicInfoStepNew = ({
                 <FormControl>
                   <Input {...field} disabled={isLoading} />
                 </FormControl>
+                <FormDescription className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Info className="h-3 w-3" />
+                  Your real name will not be displayed publicly
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

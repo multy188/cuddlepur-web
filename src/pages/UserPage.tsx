@@ -27,10 +27,12 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useUser } from "@/hooks/useApi";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function UserPage() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
+  const { user: currentUser } = useAuth();
   const { data, isLoading, error } = useUser(id || "");
   const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -62,6 +64,8 @@ export default function UserPage() {
   const userData = data.user;
   const fullName =
     `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "User";
+  const isOwnProfile = currentUser?.id === userData.id;
+  const displayName = isOwnProfile ? fullName : (userData.username || fullName);
   const isProfessional = userData.userType === "PROFESSIONAL";
   const profilePictureUrl =
     userData.photos?.find((p) => p.url)?.url || userData.profilePicture || "";
@@ -160,7 +164,7 @@ export default function UserPage() {
               {/* Name and Kebab Menu */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-3xl font-bold">{fullName}</h2>
+                  <h2 className="text-3xl font-bold">{displayName}</h2>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">

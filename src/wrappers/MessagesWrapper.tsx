@@ -19,7 +19,7 @@ export default function MessagesWrapper() {
   };
 
   return (
-    <div className="h-screen">
+    <div className="h-[calc(100vh-4rem)]">
       <Messages onBook={handleBook} initialUserId={userId} />
     </div>
   );

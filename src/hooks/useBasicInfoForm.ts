@@ -28,6 +28,7 @@ export const useBasicInfoForm = ({
   const form = useForm<UserInfoFormData>({
     resolver: zodResolver(userInfoSchema),
     defaultValues: {
+      username: (user as any)?.username || "",
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       dateOfBirth: user?.dateOfBirth ? user.dateOfBirth.split('T')[0] : "",

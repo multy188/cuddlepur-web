@@ -23,6 +23,7 @@ interface Message {
   createdAt: string;
   sender?: {
     id: string;
+    username?: string | null;
     firstName: string | null;
     lastName: string | null;
     profilePicture: string | null;
@@ -33,6 +34,7 @@ interface Conversation {
   partnerId: string;
   partner: {
     id: string;
+    username?: string | null;
     firstName: string | null;
     lastName: string | null;
     profilePicture: string | null;
@@ -271,7 +273,7 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
   if (isMobile) {
     // Mobile Layout: Show either conversation list OR message view
     if (selectedConversation && selectedConversationData) {
-      const partnerName = `${selectedConversationData.partner.firstName || ''} ${selectedConversationData.partner.lastName || ''}`.trim() || 'User';
+      const partnerName = selectedConversationData.partner.username || `${selectedConversationData.partner.firstName || ''} ${selectedConversationData.partner.lastName || ''}`.trim() || 'User';
 
       // Show message view with back button
       return (
@@ -317,7 +319,7 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
               </div>
             ) : (
               conversations.map((conversation) => {
-                const partnerName = `${conversation.partner.firstName || ''} ${conversation.partner.lastName || ''}`.trim() || 'User';
+                const partnerName = conversation.partner.username || `${conversation.partner.firstName || ''} ${conversation.partner.lastName || ''}`.trim() || 'User';
                 const lastMessageText = conversation.lastMessage?.type === 'IMAGE' ? '[Image]' : conversation.lastMessage?.content || '';
 
                 return (
@@ -375,7 +377,7 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
 
   // Desktop Layout: Two-panel view
   return (
-    <div className="flex h-full pb-20">
+    <div className="flex h-full pb-20 border border-border rounded-lg overflow-hidden">
       {/* Left Panel - Conversation List */}
       <div className="w-1/3 border-r border-border">
         <div className="p-4 border-b">
@@ -384,7 +386,7 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
 
         <div className="overflow-y-auto">
           {conversations.map((conversation) => {
-            const partnerName = `${conversation.partner.firstName || ''} ${conversation.partner.lastName || ''}`.trim() || 'User';
+            const partnerName = conversation.partner.username || `${conversation.partner.firstName || ''} ${conversation.partner.lastName || ''}`.trim() || 'User';
             const lastMessageText = conversation.lastMessage?.type === 'IMAGE' ? '[Image]' : conversation.lastMessage?.content || '';
 
             return (
@@ -442,7 +444,7 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
       <div className="flex-1 flex flex-col">
         {selectedConversationData ? (
           <MessageInterface
-            contactName={`${selectedConversationData.partner.firstName || ''} ${selectedConversationData.partner.lastName || ''}`.trim() || 'User'}
+            contactName={selectedConversationData.partner.username || `${selectedConversationData.partner.firstName || ''} ${selectedConversationData.partner.lastName || ''}`.trim() || 'User'}
             contactImage={selectedConversationData.partner.profilePicture || ''}
             isOnline={selectedConversationData.partner.isOnline}
             messages={currentMessages}

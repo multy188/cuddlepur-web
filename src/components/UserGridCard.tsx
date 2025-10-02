@@ -5,6 +5,7 @@ import { Star, Shield, MapPin, Clock } from "lucide-react";
 interface UserGridCardProps {
   id: string;
   name: string;
+  username?: string;
   age: number;
   location: string;
   rating: number;
@@ -22,6 +23,7 @@ interface UserGridCardProps {
 export default function UserGridCard({
   id,
   name,
+  username,
   age,
   location,
   rating,
@@ -55,10 +57,10 @@ export default function UserGridCard({
           src={
             profileImage ||
             "https://ui-avatars.com/api/?name=" +
-              encodeURIComponent(name) +
+              encodeURIComponent(username || "") +
               "&background=random&size=300"
           }
-          alt={name}
+          alt={username}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
 
@@ -104,7 +106,7 @@ export default function UserGridCard({
             }`}
             data-testid={`text-name-${id}`}
           >
-            {name}, {age}
+            {username}, {age}
           </h3>
           {!isSmall && (
             <div className="text-xs md:text-sm font-bold text-primary">

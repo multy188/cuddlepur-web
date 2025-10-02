@@ -54,6 +54,7 @@ export default function SearchPage() {
               key={user.id}
               id={user.id}
               name={user.name}
+              username={user.username}
               age={user.age}
               location={user.location}
               rating={user.rating}
