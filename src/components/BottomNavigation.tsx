@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Home, Search, Calendar, MessageCircle, User } from "lucide-react";
 
 interface NavItem {
@@ -20,36 +19,36 @@ export default function BottomNavigation({
   activeTab,
   onTabChange,
   unreadMessages = 0,
-  upcomingBookings = 0
+  upcomingBookings = 0,
 }: BottomNavigationProps) {
   const navItems: NavItem[] = [
     {
       id: "home",
       label: "Home",
-      icon: Home
+      icon: Home,
     },
     {
       id: "search",
       label: "Search",
-      icon: Search
+      icon: Search,
     },
     {
       id: "bookings",
-      label: "Bookings", 
+      label: "Bookings",
       icon: Calendar,
-      badge: upcomingBookings
+      badge: upcomingBookings,
     },
     {
       id: "messages",
       label: "Messages",
       icon: MessageCircle,
-      badge: unreadMessages
+      ...(unreadMessages ? { badge: unreadMessages } : {}),
     },
     {
       id: "profile",
       label: "Profile",
-      icon: User
-    }
+      icon: User,
+    },
   ];
 
   return (
@@ -58,7 +57,7 @@ export default function BottomNavigation({
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
-          
+
           return (
             <Button
               key={item.id}
@@ -78,9 +77,11 @@ export default function BottomNavigation({
                   />
                 )}
               </div>
-              <span className={`text-xs font-medium ${
-                isActive ? "text-primary" : "text-muted-foreground"
-              }`}>
+              <span
+                className={`text-xs font-medium ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
                 {item.label}
               </span>
             </Button>

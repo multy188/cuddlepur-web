@@ -47,14 +47,6 @@ export default function ProfessionalGridCard({
           className="w-full h-full object-cover"
         />
         
-        {/* Verification Badge - Top Left */}
-        {isVerified && (
-          <div className="absolute top-2 left-2">
-            <Badge variant="secondary" className="h-5 w-5 rounded-full p-0 flex items-center justify-center bg-white/90">
-              <Shield className="h-3 w-3 text-chart-1" />
-            </Badge>
-          </div>
-        )}
         
         {/* Online Status - Top Right */}
         {isOnline && (

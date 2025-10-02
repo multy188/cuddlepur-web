@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
 import { useLocation } from "wouter";
 import BottomNavigation from "./BottomNavigation";
-import { useMessages } from "@/hooks";
+import { useConversations } from "@/hooks/useApi";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,7 +10,13 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const [location, setLocation] = useLocation();
-  const { unreadMessages } = useMessages();
+  const { user } = useAuth();
+  const { data: conversationsData } = useConversations(user?.id || '');
+
+  // Calculate total unread messages from all conversations
+  const unreadMessages = Array.isArray(conversationsData)
+    ? conversationsData.reduce((total, conv: any) => total + (conv.unreadCount || 0), 0)
+    : 0;
 
   // Pages that should not show bottom navigation
   const hideBottomNavPages = [

@@ -4,10 +4,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import SearchFilters from "@/components/SearchFilters";
 import ProfessionalGridCard from "@/components/ProfessionalGridCard";
 import { useAllUsers } from "@/hooks";
+import { useSocket } from "@/contexts/SocketContext";
 
 export default function SearchPage() {
   const [, setLocation] = useLocation();
   const { users } = useAllUsers();
+  const { onlineUsers } = useSocket();
 
   const [searchFilters, setSearchFilters] = useState({
     location: "",
@@ -64,7 +66,7 @@ export default function SearchPage() {
               reviewCount={user.reviewCount}
               hourlyRate={user.hourlyRate}
               profileImage={user.profileImage}
-              isOnline={user.isOnline}
+              isOnline={onlineUsers.includes(user.id)}
               lastSeen={user.lastSeen}
               isVerified={user.isVerified}
               isProfessional={user.userType === 'PROFESSIONAL'}

@@ -105,14 +105,6 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
     }
   }, [initialUserId, conversations]);
 
-  // Auto-select first conversation on desktop when none is selected (only once on initial load)
-  useEffect(() => {
-    if (!hasAutoSelected.current && !selectedConversation && !isMobile && conversations.length > 0 && !initialUserId) {
-      setSelectedConversation(conversations[0].partnerId);
-      hasAutoSelected.current = true;
-    }
-  }, [conversations.length, isMobile, initialUserId]); // Removed selectedConversation from deps to prevent re-runs
-
   // Fetch messages using hook
   const { data: messagesData } = useMessages(
     user?.id || '',
@@ -133,7 +125,23 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
     }));
 
     setCurrentMessages(transformedMessages);
-  }, [messagesData, user?.id]);
+
+    // Mark unread messages as read when viewing conversation
+    if (socket && connected && selectedConversation) {
+      const unreadMessages = messagesData.filter(
+        (msg: Message) => !msg.isRead && msg.receiverId === user?.id
+      );
+
+      unreadMessages.forEach((msg: Message) => {
+        socket.emit('message:read', msg.id, (response: any) => {
+          if (response.success) {
+            // Invalidate conversations to update unread count
+            queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
+          }
+        });
+      });
+    }
+  }, [messagesData, user?.id, socket, connected, selectedConversation, queryClient]);
 
   // Listen for incoming messages via Socket.IO
   useEffect(() => {
@@ -293,8 +301,19 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
 
           <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-muted-foreground">No conversations yet</p>
+              <div className="flex flex-col items-center justify-center h-full px-4">
+                <img
+                  src="/assets/nomessage.svg"
+                  alt="No messages"
+                  className="w-64 h-64 mb-6"
+                />
+                <h3 className="text-lg font-semibold mb-2">No Messages Yet</h3>
+                <p className="text-muted-foreground text-center mb-6">
+                  Connect with cuddlers to start a conversation
+                </p>
+                <Button onClick={() => setLocation('/search')}>
+                  Search for Cuddlers
+                </Button>
               </div>
             ) : (
               conversations.map((conversation) => {
@@ -364,64 +383,58 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
         </div>
 
         <div className="overflow-y-auto">
-          {conversations.length === 0 ? (
-            <div className="flex items-center justify-center h-full p-8">
-              <p className="text-muted-foreground text-center">No conversations yet</p>
-            </div>
-          ) : (
-            conversations.map((conversation) => {
-              const partnerName = `${conversation.partner.firstName || ''} ${conversation.partner.lastName || ''}`.trim() || 'User';
-              const lastMessageText = conversation.lastMessage?.type === 'IMAGE' ? '[Image]' : conversation.lastMessage?.content || '';
+          {conversations.map((conversation) => {
+            const partnerName = `${conversation.partner.firstName || ''} ${conversation.partner.lastName || ''}`.trim() || 'User';
+            const lastMessageText = conversation.lastMessage?.type === 'IMAGE' ? '[Image]' : conversation.lastMessage?.content || '';
 
-              return (
-                <Card
-                  key={conversation.partnerId}
-                  className={`m-2 p-3 cursor-pointer hover-elevate transition-all ${
-                    selectedConversation === conversation.partnerId ? 'bg-muted' : ''
-                  }`}
-                  onClick={() => setSelectedConversation(conversation.partnerId)}
-                  data-testid={`conversation-${conversation.partnerId}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={conversation.partner.profilePicture || ''} alt={partnerName} />
-                        <AvatarFallback>{partnerName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      {conversation.partner.isOnline && (
-                        <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-background rounded-full" />
+            return (
+              <Card
+                key={conversation.partnerId}
+                className={`m-2 p-3 cursor-pointer hover-elevate transition-all ${
+                  selectedConversation === conversation.partnerId ? 'bg-muted' : ''
+                }`}
+                onClick={() => setSelectedConversation(conversation.partnerId)}
+                data-testid={`conversation-${conversation.partnerId}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={conversation.partner.profilePicture || ''} alt={partnerName} />
+                      <AvatarFallback>{partnerName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    {conversation.partner.isOnline && (
+                      <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 border-2 border-background rounded-full" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-semibold text-sm truncate" data-testid={`text-conversation-name-${conversation.partnerId}`}>
+                        {partnerName}
+                      </h3>
+                      {conversation.lastMessage?.createdAt && (
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(conversation.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       )}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-semibold text-sm truncate" data-testid={`text-conversation-name-${conversation.partnerId}`}>
-                          {partnerName}
-                        </h3>
-                        {conversation.lastMessage?.createdAt && (
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(conversation.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-muted-foreground truncate flex-1">
-                          {lastMessageText}
-                        </p>
-                        {conversation.unreadCount > 0 && (
-                          <div
-                            className="h-2 w-2 bg-red-500 rounded-full ml-2"
-                            data-testid={`badge-unread-${conversation.partnerId}`}
-                          />
-                        )}
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground truncate flex-1">
+                        {lastMessageText}
+                      </p>
+                      {conversation.unreadCount > 0 && (
+                        <div
+                          className="h-2 w-2 bg-red-500 rounded-full ml-2"
+                          data-testid={`badge-unread-${conversation.partnerId}`}
+                        />
+                      )}
                     </div>
                   </div>
-                </Card>
-              );
-            })
-          )}
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </div>
 
@@ -440,6 +453,21 @@ export default function Messages({ onBook, initialUserId }: MessagesProps) {
             onBlock={() => console.log('Block user')}
             onContactClick={() => setLocation(`/user/${selectedConversationData.partnerId}`)}
           />
+        ) : conversations.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center px-4">
+            <img
+              src="/assets/nomessage.svg"
+              alt="No messages"
+              className="w-64 h-64 mb-6"
+            />
+            <h3 className="text-lg font-semibold mb-2">No Messages Yet</h3>
+            <p className="text-muted-foreground text-center mb-6">
+              Connect with cuddlers to start a conversation
+            </p>
+            <Button onClick={() => setLocation('/search')}>
+              Search for Cuddlers
+            </Button>
+          </div>
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
