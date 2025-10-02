@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Home, Search, Calendar, MessageCircle, User } from "lucide-react";
+import { Home, Search, Calendar, MessageCircle } from "lucide-react";
 
 interface NavItem {
   id: string;
@@ -44,16 +44,11 @@ export default function BottomNavigation({
       icon: MessageCircle,
       ...(unreadMessages ? { badge: unreadMessages } : {}),
     },
-    {
-      id: "profile",
-      label: "Profile",
-      icon: User,
-    },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border">
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="max-w-6xl mx-auto flex items-center justify-around px-2 py-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;

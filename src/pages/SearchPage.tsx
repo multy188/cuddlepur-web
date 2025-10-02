@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import SearchFilters from "@/components/SearchFilters";
 import UserGridCard from "@/components/UserGridCard";
 import { useAllUsers } from "@/hooks";
@@ -23,13 +22,8 @@ export default function SearchPage() {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 overflow-y-auto pt-4">
       <div className="container mx-auto p-4 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Find Cuddlers</h1>
-          <ThemeToggle />
-        </div>
-
         <SearchFilters
           filters={searchFilters}
           onFiltersChange={setSearchFilters}

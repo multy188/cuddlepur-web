@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Shield, Clock } from "lucide-react";
+import { Users, Shield } from "lucide-react";
 import ProfileCard from "./ProfileCard";
 import { useDashboard } from "@/hooks";
 import { safetyTips } from "@/const/safety";
+import { useSocket } from "@/contexts/SocketContext";
+import UserGridCard from "./UserGridCard";
 
 interface DashboardProps {
   userName: string;
@@ -20,12 +22,13 @@ export default function Dashboard({
     recentlyOnlineUsers: profileVisitors,
     featuredProfessionals: onlineProfessionals,
   } = useDashboard();
+  const { onlineUsers } = useSocket();
 
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary/10 to-chart-1/10 p-4">
-        <div className="container mx-auto">
+        <div className="max-w-6xl mx-auto">
           <h1
             className="text-2xl font-bold mb-2"
             data-testid="text-welcome"
@@ -38,7 +41,7 @@ export default function Dashboard({
         </div>
       </div>
 
-      <div className="container mx-auto p-4 space-y-6">
+      <div className="max-w-6xl mx-auto p-4 space-y-6">
         {/* Profile Visitors */}
         <Card className="p-4">
           <h3 className="font-semibold mb-3 flex items-center">
@@ -48,43 +51,21 @@ export default function Dashboard({
 
           <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2">
             {profileVisitors.map((visitor) => (
-              <Card
+              <UserGridCard
                 key={visitor.id}
-                className="overflow-hidden hover-elevate cursor-pointer transition-all flex-shrink-0 w-32"
-                onClick={() => onSelectUser?.(visitor.id)}
-                data-testid={`visitor-card-${visitor.id}`}
-              >
-                {/* Profile Image - Takes 2/3 of container */}
-                <div className="relative aspect-[4/5]">
-                  <img
-                    src={visitor.image}
-                    alt={visitor.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Visitor Info - Takes remaining 1/3 */}
-                <div className="p-3 space-y-1">
-                  {/* Name */}
-                  <h4
-                    className="font-semibold text-sm leading-tight"
-                    data-testid={`text-visitor-${visitor.id}`}
-                  >
-                    {visitor.name}
-                  </h4>
-
-                  {/* Age and Location */}
-                  <p className="text-xs text-muted-foreground">
-                    {visitor.age}, {visitor.location}
-                  </p>
-
-                  {/* Time */}
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
-                    <span>{visitor.time}</span>
-                  </div>
-                </div>
-              </Card>
+                id={visitor.id}
+                name={visitor.name}
+                age={visitor.age}
+                location={visitor.location}
+                rating={visitor.rating}
+                reviewCount={visitor.reviewCount}
+                hourlyRate={visitor.hourlyRate || 0}
+                profileImage={visitor.image}
+                isOnline={onlineUsers.includes(visitor.id)}
+                time={visitor.time}
+                onClick={(id) => onSelectUser?.(id)}
+                variant="small"
+              />
             ))}
           </div>
         </Card>
