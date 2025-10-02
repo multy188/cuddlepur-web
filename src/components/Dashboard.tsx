@@ -55,7 +55,9 @@ export default function Dashboard({
                 key={visitor.id}
                 id={visitor.id}
                 name={visitor.name}
+                username={visitor.username}
                 age={visitor.age}
+                gender={visitor.gender}
                 location={visitor.location}
                 rating={visitor.rating}
                 reviewCount={visitor.reviewCount}

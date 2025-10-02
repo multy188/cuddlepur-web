@@ -28,6 +28,7 @@ export function useAllUsers(options: UseUsersOptions = {}) {
     id: user.id,
     name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : 'User',
     username: user.username,
+    gender: user.gender,
     profileImage: user.profilePicture || null,
     profileImages: user.profilePicture ? [user.profilePicture] : [],
     rating: user.averageRating || 0,

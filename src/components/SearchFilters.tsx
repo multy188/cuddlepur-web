@@ -12,6 +12,8 @@ import { Search, Filter, X } from "lucide-react";
 interface Filters {
   location: string;
   gender: string;
+  relationshipStatus: string;
+  hasPicture: boolean;
   ageRange: [number, number];
   rateRange: [number, number];
   availability: string;
@@ -26,6 +28,8 @@ interface SearchFiltersProps {
   isOpen: boolean;
   onToggle: () => void;
   activeFilterCount: number;
+  onSavePreferences?: () => void;
+  onClearFilters?: () => void;
 }
 
 export default function SearchFilters({
@@ -34,24 +38,14 @@ export default function SearchFilters({
   onSearch,
   isOpen,
   onToggle,
-  activeFilterCount
+  activeFilterCount,
+  onSavePreferences,
+  onClearFilters
 }: SearchFiltersProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const updateFilter = (key: keyof Filters, value: any) => {
     onFiltersChange({ ...filters, [key]: value });
-  };
-
-  const clearFilters = () => {
-    onFiltersChange({
-      location: "",
-      gender: "any",
-      ageRange: [18, 65],
-      rateRange: [20, 100],
-      availability: "any",
-      professionalsOnly: false,
-      radius: 25
-    });
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -60,7 +54,7 @@ export default function SearchFilters({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Filter Toggle */}
       <div className="flex items-center justify-between">
         <Button
@@ -78,16 +72,23 @@ export default function SearchFilters({
           )}
         </Button>
 
-        {activeFilterCount > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFilters}
-            data-testid="button-clear-filters"
-          >
-            Clear all
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {onSavePreferences && (
+            <Button variant="outline" size="sm" onClick={onSavePreferences}>
+              Save Preference
+            </Button>
+          )}
+          {activeFilterCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClearFilters}
+              data-testid="button-clear-filters"
+            >
+              Clear all
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filter Panel */}
@@ -100,103 +101,90 @@ export default function SearchFilters({
             </Button>
           </div>
 
-          {/* Location */}
-          <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              placeholder="Enter city or area"
-              value={filters.location}
-              onChange={(e) => updateFilter("location", e.target.value)}
-              data-testid="input-location"
-            />
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Gender */}
+            <div className="space-y-2">
+              <Label>Gender</Label>
+              <Select value={filters.gender} onValueChange={(value) => updateFilter("gender", value)}>
+                <SelectTrigger data-testid="select-gender">
+                  <SelectValue placeholder="Any gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any gender</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="non-binary">Non-binary</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Gender */}
-          <div className="space-y-2">
-            <Label>Gender</Label>
-            <Select value={filters.gender} onValueChange={(value) => updateFilter("gender", value)}>
-              <SelectTrigger data-testid="select-gender">
-                <SelectValue placeholder="Any gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any gender</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="non-binary">Non-binary</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Relationship Status */}
+            <div className="space-y-2">
+              <Label>Relationship Status</Label>
+              <Select value={filters.relationshipStatus} onValueChange={(value) => updateFilter("relationshipStatus", value)}>
+                <SelectTrigger data-testid="select-relationship-status">
+                  <SelectValue placeholder="Any status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any status</SelectItem>
+                  <SelectItem value="single">Single</SelectItem>
+                  <SelectItem value="married">Married</SelectItem>
+                  <SelectItem value="divorced">Divorced</SelectItem>
+                  <SelectItem value="widowed">Widowed</SelectItem>
+                  <SelectItem value="relationship">In a relationship</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Age Range */}
-          <div className="space-y-3">
-            <Label>Age Range: {filters.ageRange[0]} - {filters.ageRange[1]}</Label>
-            <Slider
-              value={filters.ageRange}
-              onValueChange={(value) => updateFilter("ageRange", value as [number, number])}
-              min={18}
-              max={65}
-              step={1}
-              className="w-full"
-              data-testid="slider-age"
-            />
-          </div>
+            {/* Age Range */}
+            <div className="space-y-3">
+              <Label>Age Range: {filters.ageRange[0]} - {filters.ageRange[1]}</Label>
+              <Slider
+                value={filters.ageRange}
+                onValueChange={(value) => updateFilter("ageRange", value as [number, number])}
+                min={18}
+                max={65}
+                step={1}
+                className="w-full"
+                data-testid="slider-age"
+              />
+            </div>
 
-          {/* Rate Range */}
-          <div className="space-y-3">
-            <Label>Hourly Rate: ${filters.rateRange[0]} - ${filters.rateRange[1]}</Label>
-            <Slider
-              value={filters.rateRange}
-              onValueChange={(value) => updateFilter("rateRange", value as [number, number])}
-              min={20}
-              max={100}
-              step={5}
-              className="w-full"
-              data-testid="slider-rate"
-            />
-          </div>
+            {/* Radius */}
+            <div className="space-y-3">
+              <Label>Search Radius: {filters.radius} km</Label>
+              <Slider
+                value={[filters.radius]}
+                onValueChange={(value) => updateFilter("radius", value[0])}
+                min={5}
+                max={50}
+                step={5}
+                className="w-full"
+                data-testid="slider-radius"
+              />
+            </div>
 
+            {/* Has Picture */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="hasPicture"
+                checked={filters.hasPicture}
+                onCheckedChange={(checked) => updateFilter("hasPicture", !!checked)}
+                data-testid="checkbox-has-picture"
+              />
+              <Label htmlFor="hasPicture">Has profile picture</Label>
+            </div>
 
-          {/* Availability */}
-          <div className="space-y-2">
-            <Label>Availability</Label>
-            <Select value={filters.availability} onValueChange={(value) => updateFilter("availability", value)}>
-              <SelectTrigger data-testid="select-availability">
-                <SelectValue placeholder="Any time" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any time</SelectItem>
-                <SelectItem value="online">Online now</SelectItem>
-                <SelectItem value="morning">Morning available</SelectItem>
-                <SelectItem value="afternoon">Afternoon available</SelectItem>
-                <SelectItem value="evening">Evening available</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Professionals Only */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="professionalsOnly"
-              checked={filters.professionalsOnly}
-              onCheckedChange={(checked) => updateFilter("professionalsOnly", !!checked)}
-              data-testid="checkbox-professionals-only"
-            />
-            <Label htmlFor="professionalsOnly">Verified professionals only</Label>
-          </div>
-
-          {/* Radius */}
-          <div className="space-y-3">
-            <Label>Search Radius: {filters.radius} km</Label>
-            <Slider
-              value={[filters.radius]}
-              onValueChange={(value) => updateFilter("radius", value[0])}
-              min={5}
-              max={50}
-              step={5}
-              className="w-full"
-              data-testid="slider-radius"
-            />
+            {/* Professionals Only */}
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="professionalsOnly"
+                checked={filters.professionalsOnly}
+                onCheckedChange={(checked) => updateFilter("professionalsOnly", !!checked)}
+                data-testid="checkbox-professionals-only"
+              />
+              <Label htmlFor="professionalsOnly">Verified professionals only</Label>
+            </div>
           </div>
         </Card>
       )}

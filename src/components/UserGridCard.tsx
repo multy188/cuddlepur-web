@@ -1,12 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Shield, MapPin, Clock } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 
 interface UserGridCardProps {
   id: string;
   name: string;
   username?: string;
   age: number;
+  gender?: string;
   location: string;
   rating: number;
   reviewCount: number;
@@ -25,6 +26,7 @@ export default function UserGridCard({
   name,
   username,
   age,
+  gender,
   location,
   rating,
   reviewCount,
@@ -63,6 +65,18 @@ export default function UserGridCard({
           alt={username}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
+
+        {/* Gender Badge - Top Left - Only show for small variant (dashboard) */}
+        {gender && isSmall && (
+          <div className="absolute top-2 left-2">
+            <Badge
+              variant="secondary"
+              className="h-5 px-2 text-xs font-medium bg-black/50 text-white border-0 backdrop-blur-sm"
+            >
+              {gender}
+            </Badge>
+          </div>
+        )}
 
         {/* Professional Badge - Top Right */}
         {isProfessional && (
@@ -129,10 +143,16 @@ export default function UserGridCard({
           <span className="truncate">{location}</span>
         </div>
 
-        <div className="flex items-center text-[10px] text-muted-foreground">
-          <Clock className="h-2.5 w-2.5 mr-1 flex-shrink-0" />
-          <span>{isOnline ? "Online now" : time || lastSeen}</span>
-        </div>
+        {/* Gender - Only show for medium variant (search page) below location */}
+        {gender && !isSmall && (
+          <div
+            className={`text-muted-foreground ${
+              isSmall ? "text-[10px]" : "text-[10px] md:text-xs"
+            }`}
+          >
+            {gender}
+          </div>
+        )}
       </div>
     </Card>
   );
