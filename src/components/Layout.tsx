@@ -60,7 +60,9 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {children}
+      <div className="max-w-6xl mx-auto">
+        {children}
+      </div>
 
       {shouldShowBottomNav && (
         <BottomNavigation

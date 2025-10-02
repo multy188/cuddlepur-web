@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import SearchFilters from "@/components/SearchFilters";
-import ProfessionalGridCard from "@/components/ProfessionalGridCard";
+import UserGridCard from "@/components/UserGridCard";
 import { useAllUsers } from "@/hooks";
 import { useSocket } from "@/contexts/SocketContext";
 
@@ -56,7 +56,7 @@ export default function SearchPage() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {users.map((user: any) => (
-            <ProfessionalGridCard
+            <UserGridCard
               key={user.id}
               id={user.id}
               name={user.name}
