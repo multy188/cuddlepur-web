@@ -7,6 +7,8 @@ export default function DashboardWrapper() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
 
+  console.log('🏠 DashboardWrapper rendered');
+
   // Redirect if not properly authenticated or missing required info
   useEffect(() => {
     if (!isLoading) {
@@ -50,7 +52,7 @@ export default function DashboardWrapper() {
   };
   
   const handleSelectUser = (userId: string) => {
-    setLocation(`/professional/${userId}`);
+    setLocation(`/user/${userId}`);
   };
   
   const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';

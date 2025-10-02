@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Send, Calendar, MoreVertical, ImagePlus } from "lucide-react";
+import { Send, Calendar, MoreVertical, ImagePlus, ArrowLeft } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useGetImageUploadUrl, useUploadToS3 } from "@/hooks/useApi";
 
 interface Message {
   id: string;
@@ -27,6 +28,8 @@ interface MessageInterfaceProps {
   onBookSession?: () => void;
   onReport?: () => void;
   onBlock?: () => void;
+  onBack?: () => void;
+  onContactClick?: () => void;
 }
 
 export default function MessageInterface({
@@ -38,21 +41,57 @@ export default function MessageInterface({
   onSendImage,
   onBookSession,
   onReport,
-  onBlock
+  onBlock,
+  onBack,
+  onContactClick
 }: MessageInterfaceProps) {
   const [newMessage, setNewMessage] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getUploadUrlMutation = useGetImageUploadUrl();
+  const uploadToS3Mutation = useUploadToS3();
+  const isUploading = getUploadUrlMutation.isPending || uploadToS3Mutation.isPending;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim()) {
-      onSendMessage(newMessage.trim());
+
+    try {
+      // If there's an image selected, upload it using presigned URL
+      if (selectedImage && onSendImage) {
+        // Step 1: Get presigned URL from server
+        const { uploadURL, imageUrl } = await getUploadUrlMutation.mutateAsync();
+
+        // Step 2: Upload file directly to S3
+        await uploadToS3Mutation.mutateAsync({
+          file: selectedImage,
+          uploadURL
+        });
+
+        // Step 3: Send the final S3 URL in the message
+        onSendImage(imageUrl);
+      }
+
+      // If there's a text message, send it
+      if (newMessage.trim()) {
+        onSendMessage(newMessage.trim());
+      }
+
+      // Clear inputs
       setNewMessage("");
+      setSelectedImage(null);
+      setImagePreview(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !onSendImage) return;
 
@@ -68,74 +107,42 @@ export default function MessageInterface({
       return;
     }
 
-    try {
-      setIsUploading(true);
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setSelectedImage(file);
+    setImagePreview(previewUrl);
+  };
 
-      // Get upload URL from server
-      const uploadResponse = await fetch('/api/messages/upload-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to get upload URL');
-      }
-
-      const { uploadURL } = await uploadResponse.json();
-
-      // Upload file to storage
-      const uploadResult = await fetch(uploadURL, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type,
-        },
-      });
-
-      if (!uploadResult.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      // Finalize the upload
-      const finalizeResponse = await fetch('/api/messages/finalize-image', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageURL: uploadURL.split('?')[0], // Remove query parameters
-        }),
-      });
-
-      if (!finalizeResponse.ok) {
-        throw new Error('Failed to finalize image upload');
-      }
-
-      const { objectPath } = await finalizeResponse.json();
-      
-      // Send the image message
-      onSendImage(objectPath);
-
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Failed to upload image. Please try again.');
-    } finally {
-      setIsUploading(false);
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
+
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
-          <div className="relative">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              data-testid="button-back-to-conversations"
+              aria-label="Back to conversations"
+              title="Back to conversations"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          )}
+          <div
+            className={`relative ${onContactClick ? 'cursor-pointer' : ''}`}
+            onClick={onContactClick}
+          >
             <Avatar className="h-10 w-10">
               <AvatarImage src={contactImage} alt={contactName} />
               <AvatarFallback>{contactName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
@@ -144,8 +151,11 @@ export default function MessageInterface({
               <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-status-online border-2 border-background rounded-full" />
             )}
           </div>
-          
-          <div>
+
+          <div
+            className={onContactClick ? 'cursor-pointer' : ''}
+            onClick={onContactClick}
+          >
             <h3 className="font-semibold" data-testid="text-contact-name">{contactName}</h3>
             <p className="text-xs text-muted-foreground">
               {isOnline ? "Online now" : "Last seen recently"}
@@ -245,41 +255,69 @@ export default function MessageInterface({
 
       {/* Message Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t">
-        <div className="flex gap-2">
+        {/* Image Preview */}
+        {imagePreview && (
+          <div className="mb-3 relative inline-block">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="rounded-lg max-h-[150px] w-auto border-2 border-border"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+              onClick={removeImage}
+            >
+              ✕
+            </Button>
+          </div>
+        )}
+
+        <div className="flex gap-2 items-end">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
+            disabled={isUploading || !!selectedImage}
             data-testid="button-upload-image"
+            className="mb-1"
           >
             <ImagePlus className="h-4 w-4" />
           </Button>
-          <Input
+          <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={isUploading ? "Uploading image..." : "Type a message..."}
-            className="flex-1"
+            className="flex-1 min-h-[80px] max-h-[200px] resize-none"
             disabled={isUploading}
             data-testid="input-message"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
           />
           <Button
             type="submit"
             size="sm"
-            disabled={!newMessage.trim() || isUploading}
+            disabled={(!newMessage.trim() && !selectedImage) || isUploading}
             data-testid="button-send-message"
+            className="mb-1"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        
+
         {/* Hidden file input */}
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          onChange={handleImageUpload}
+          onChange={handleImageSelect}
           className="hidden"
           data-testid="input-image-upload"
         />

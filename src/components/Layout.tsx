@@ -27,7 +27,7 @@ export default function Layout({ children }: LayoutProps) {
     if (location === "/dashboard") return "home";
     if (location === "/search") return "search";
     if (location.startsWith("/booking")) return "bookings";
-    if (location === "/messages") return "messages";
+    if (location.startsWith("/messages")) return "messages";
     if (location === "/profile") return "profile";
     return "home";
   };
@@ -40,7 +40,15 @@ export default function Layout({ children }: LayoutProps) {
       messages: "/messages",
       profile: "/profile",
     };
-    setLocation(routes[tabId] || "/dashboard");
+    const targetRoute = routes[tabId] || "/dashboard";
+    console.log(targetRoute, " tabId: ", tabId);
+
+    console.log("🚀 Navigation:", {
+      tabId,
+      targetRoute,
+      currentLocation: location,
+    });
+    setLocation(targetRoute);
   };
 
   return (

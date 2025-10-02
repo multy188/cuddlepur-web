@@ -69,15 +69,8 @@ export default function SearchPage() {
               isVerified={user.isVerified}
               isProfessional={user.userType === 'PROFESSIONAL'}
               onClick={(id) => {
-                // Navigate based on user type
-                const clickedUser = users.find((u: any) => u.id === id);
-                if (clickedUser?.userType === 'PROFESSIONAL') {
-                  setLocation(`/professional/${id}`);
-                } else {
-                  // For cuddlers, navigate to a general profile page or professional page
-                  // Since we only have professional route for now, we'll use it but could add user route later
-                  setLocation(`/professional/${id}`);
-                }
+                // Navigate to user page
+                setLocation(`/user/${id}`);
               }}
             />
           ))}

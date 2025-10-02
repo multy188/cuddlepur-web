@@ -6,11 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  User, 
-  Camera, 
-  Shield, 
-  Edit3, 
+import {
+  User,
+  Camera,
+  Shield,
+  Edit3,
   MapPin,
   Phone,
   LogOut,
@@ -110,7 +110,7 @@ export default function Profile({ onSignOut, initialEditMode = false, onApplyPro
 
   const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
   const isProfessional = user.userType === 'PROFESSIONAL';
-  
+
   // Get the current profile picture URL
   const profilePictureUrl = user.photos?.find(p => p.isProfilePicture)?.url || user.profilePicture || '';
 
@@ -182,8 +182,8 @@ export default function Profile({ onSignOut, initialEditMode = false, onApplyPro
                   </Button>
                 )}
                 {!isProfessional && !isEditing && (
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     data-testid="button-apply-professional"
                     onClick={onApplyProfessional}
                   >

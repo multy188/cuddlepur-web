@@ -5,7 +5,7 @@ import Profile from "@/components/Profile";
 export default function ProfileWrapper() {
   const [, setLocation] = useLocation();
   const signOut = useSignOut();
-  
+
   const handleSignOut = async () => {
     try {
       await signOut.mutateAsync();
@@ -16,16 +16,21 @@ export default function ProfileWrapper() {
       setLocation("/");
     }
   };
-  
+
   const handleBack = () => {
     setLocation("/dashboard");
   };
-  
+
+  const handleApplyProfessional = () => {
+    setLocation("/setup/id-verification");
+  };
+
   return (
     <Profile
       onSignOut={handleSignOut}
       onBack={handleBack}
       initialEditMode={false}
+      onApplyProfessional={handleApplyProfessional}
     />
   );
 }

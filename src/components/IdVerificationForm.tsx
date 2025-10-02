@@ -7,17 +7,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Shield, Upload, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubmitIdVerification } from '@/hooks/useApi';
 
 export default function IdVerificationForm() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
-  
+  const submitIdVerification = useSubmitIdVerification();
+
   const [formData, setFormData] = useState({
     frontImage: null as File | null
   });
-  
+
   const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [frontPreview, setFrontPreview] = useState<string>('');
 
   const handleFileChange = (file: File | null) => {
@@ -40,32 +41,16 @@ export default function IdVerificationForm() {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('idImage', formData.frontImage);
 
-      const response = await fetch('http://localhost:3001/api/auth/verify-id', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('cuddlepur_token')}`
-        },
-        body: formDataToSend
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit ID verification');
-      }
+      await submitIdVerification.mutateAsync(formDataToSend);
 
       // Navigate to dashboard after ID verification submission
       navigate('/dashboard');
     } catch (error: any) {
       setError(error.message || 'Failed to submit ID verification');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -130,9 +115,9 @@ export default function IdVerificationForm() {
           <Button
             type="submit"
             className="w-full"
-            disabled={isSubmitting}
+            disabled={submitIdVerification.isPending}
           >
-            {isSubmitting ? (
+            {submitIdVerification.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Submitting for Review...

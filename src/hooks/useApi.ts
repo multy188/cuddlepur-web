@@ -264,3 +264,118 @@ export const useSetProfilePicture = () => {
     }
   });
 };
+
+// Messaging - conversations (from Socket.IO service on port 3002)
+const SOCKET_API_BASE_URL = 'http://localhost:3002/api';
+
+export const useConversations = (userId: string) => {
+  const { token } = useAuth();
+
+  return useQuery({
+    queryKey: ['conversations', userId],
+    queryFn: async () => {
+      const response = await fetch(`${SOCKET_API_BASE_URL}/conversations/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch conversations');
+      }
+      return response.json();
+    },
+    enabled: !!userId && !!token,
+    staleTime: 30 * 1000 // 30 seconds
+  });
+};
+
+// Get messages between two users
+export const useMessages = (userId: string, otherUserId: string) => {
+  const { token } = useAuth();
+
+  return useQuery({
+    queryKey: ['messages', userId, otherUserId],
+    queryFn: async () => {
+      const response = await fetch(`${SOCKET_API_BASE_URL}/messages/${userId}/${otherUserId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
+      return response.json();
+    },
+    enabled: !!userId && !!otherUserId && !!token,
+    staleTime: 10 * 1000 // 10 seconds
+  });
+};
+
+// Submit ID verification
+export const useSubmitIdVerification = () => {
+  const { token } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-id`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to submit ID verification');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+    }
+  });
+};
+
+// Get presigned URL for image upload
+export const useGetImageUploadUrl = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`${SOCKET_API_BASE_URL}/messages/upload-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get upload URL');
+      }
+
+      return response.json() as Promise<{ uploadURL: string; imageUrl: string; key: string }>;
+    },
+  });
+};
+
+// Upload image directly to S3 using presigned URL
+export const useUploadToS3 = () => {
+  return useMutation({
+    mutationFn: async ({ file, uploadURL }: { file: File; uploadURL: string }) => {
+      const response = await fetch(uploadURL, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': 'image/jpeg',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image to S3');
+      }
+
+      return response;
+    },
+  });
+};

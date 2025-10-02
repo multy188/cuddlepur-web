@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SocketProvider } from "./contexts/SocketContext";
 import Layout from "@/components/Layout";
 import { Routes } from "./routes";
 
@@ -12,16 +13,18 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider defaultTheme="light">
-          <TooltipProvider>
-            <Router>
-              <Layout>
-                <Routes />
-              </Layout>
-            </Router>
-            <Toaster />
-          </TooltipProvider>
-        </ThemeProvider>
+        <SocketProvider>
+          <ThemeProvider defaultTheme="light">
+            <TooltipProvider>
+              <Router>
+                <Layout>
+                  <Routes />
+                </Layout>
+              </Router>
+              <Toaster />
+            </TooltipProvider>
+          </ThemeProvider>
+        </SocketProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

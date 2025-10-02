@@ -72,13 +72,10 @@ export default function BottomNavigation({
               <div className="relative">
                 <Icon className={`h-5 w-5 ${isActive ? "text-primary" : ""}`} />
                 {item.badge && item.badge > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs flex items-center justify-center min-w-0"
+                  <div
+                    className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"
                     data-testid={`badge-${item.id}`}
-                  >
-                    {item.badge > 99 ? "99+" : item.badge}
-                  </Badge>
+                  />
                 )}
               </div>
               <span className={`text-xs font-medium ${
