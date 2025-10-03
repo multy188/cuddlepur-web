@@ -1,5 +1,27 @@
 import { useUsers, useProfessionals as useApiProfessionals, useUser } from './useApi';
 
+// Helper function to calculate age from dateOfBirth
+function calculateAge(dateOfBirth: string | undefined): number {
+  if (!dateOfBirth) return 0;
+
+  const dateStr = dateOfBirth.split('T')[0]; // "2000-02-21"
+  const [birthYear, birthMonth, birthDay] = dateStr.split('-').map(Number);
+
+  const today = new Date();
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+  const todayDay = today.getDate();
+
+  let calculatedAge = todayYear - birthYear;
+
+  // Adjust age if birthday hasn't occurred this year
+  if (todayMonth < birthMonth || (todayMonth === birthMonth && todayDay < birthDay)) {
+    calculatedAge = calculatedAge - 1;
+  }
+
+  return calculatedAge;
+}
+
 interface UseUsersOptions {
   location?: string;
   serviceType?: string;
@@ -44,7 +66,7 @@ export function useAllUsers(options: UseUsersOptions = {}) {
     completedSessions: Math.floor(Math.random() * 100) + 10,
     expertise: user.services || [],
     specialties: user.services || [], // Map services to specialties
-    age: 25,
+    age: calculateAge(user.dateOfBirth),
     languages: ['English'],
     workingHours: '9 AM - 11 PM',
     certifications: [],
@@ -91,7 +113,7 @@ export function useProfessionals(options: UseProfessionalsOptions = {}) {
     completedSessions: Math.floor(Math.random() * 100) + 10,
     expertise: prof.services || [],
     specialties: prof.services || [], // Map services to specialties
-    age: 25,
+    age: calculateAge(prof.dateOfBirth),
     languages: ['English'],
     workingHours: '9 AM - 11 PM',
     certifications: [],
@@ -148,7 +170,7 @@ export function useProfessional(id: string) {
     completedSessions: Math.floor(Math.random() * 100) + 10,
     expertise: prof.services || [],
     specialties: prof.services || [], // Map services to specialties
-    age: 25,
+    age: calculateAge(prof.dateOfBirth),
     languages: ['English'],
     workingHours: '9 AM - 11 PM',
     certifications: [],

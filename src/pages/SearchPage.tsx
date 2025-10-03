@@ -28,7 +28,10 @@ export default function SearchPage() {
   const { preferences, savePreferences, isSaving } = useSearchPreferences();
   const { toast } = useToast();
 
-  const [searchFilters, setSearchFilters] = useState(DEFAULT_FILTERS);
+  // Initialize with preferences (from localStorage) or defaults
+  const [searchFilters, setSearchFilters] = useState(() => {
+    return preferences || DEFAULT_FILTERS;
+  });
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Debounce filter changes for 500ms
@@ -67,13 +70,6 @@ export default function SearchPage() {
 
   // Fetch users with debounced filters
   const { users, isLoading } = useAllUsers(apiParams);
-
-  // Load saved preferences on mount
-  useEffect(() => {
-    if (preferences) {
-      setSearchFilters(preferences);
-    }
-  }, [preferences]);
 
   // Handle save preferences
   const handleSavePreferences = () => {

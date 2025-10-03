@@ -52,18 +52,23 @@ export const useUserDetails = (user: User | null | undefined): UserDetails | nul
     let ageDisplay = 'N/A';
 
     if (user.dateOfBirth) {
-      const birthDate = new Date(user.dateOfBirth);
+      // Extract just the date part to avoid timezone issues
+      const dateStr = user.dateOfBirth.split('T')[0]; // "2000-02-21"
+      const [birthYear, birthMonth, birthDay] = dateStr.split('-').map(Number);
+
       const today = new Date();
-      const calculatedAge = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
+      const todayYear = today.getFullYear();
+      const todayMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+      const todayDay = today.getDate();
+
+      let calculatedAge = todayYear - birthYear;
 
       // Adjust age if birthday hasn't occurred this year
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age = calculatedAge - 1;
-      } else {
-        age = calculatedAge;
+      if (todayMonth < birthMonth || (todayMonth === birthMonth && todayDay < birthDay)) {
+        calculatedAge = calculatedAge - 1;
       }
 
+      age = calculatedAge;
       ageDisplay = age.toString();
     }
 
@@ -131,18 +136,23 @@ export const useUsersDetails = (users: User[] | null | undefined): UserDetails[]
       let ageDisplay = 'N/A';
 
       if (user.dateOfBirth) {
-        const birthDate = new Date(user.dateOfBirth);
+        // Extract just the date part to avoid timezone issues
+        const dateStr = user.dateOfBirth.split('T')[0]; // "2000-02-21"
+        const [birthYear, birthMonth, birthDay] = dateStr.split('-').map(Number);
+
         const today = new Date();
-        const calculatedAge = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const todayYear = today.getFullYear();
+        const todayMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+        const todayDay = today.getDate();
+
+        let calculatedAge = todayYear - birthYear;
 
         // Adjust age if birthday hasn't occurred this year
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          age = calculatedAge - 1;
-        } else {
-          age = calculatedAge;
+        if (todayMonth < birthMonth || (todayMonth === birthMonth && todayDay < birthDay)) {
+          calculatedAge = calculatedAge - 1;
         }
 
+        age = calculatedAge;
         ageDisplay = age.toString();
       }
 

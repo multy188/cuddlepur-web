@@ -47,6 +47,12 @@ export const useUsers = (searchParams: {
   maxRate?: number;
   isAvailable?: boolean;
   userType?: string;
+  gender?: string;
+  relationshipStatus?: string;
+  hasPicture?: boolean;
+  minAge?: number;
+  maxAge?: number;
+  radius?: number;
   page?: number;
   limit?: number;
 } = {}) => {
