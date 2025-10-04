@@ -12,7 +12,6 @@ import { Search, Filter, X } from "lucide-react";
 interface Filters {
   location: string;
   gender: string;
-  relationshipStatus: string;
   hasPicture: boolean;
   ageRange: [number, number];
   rateRange: [number, number];
@@ -101,89 +100,78 @@ export default function SearchFilters({
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Gender */}
-            <div className="space-y-2">
-              <Label>Gender</Label>
-              <Select value={filters.gender} onValueChange={(value) => updateFilter("gender", value)}>
-                <SelectTrigger data-testid="select-gender">
-                  <SelectValue placeholder="Any gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any gender</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="non-binary">Non-binary</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="space-y-6">
+            {/* Gender - Half Width on Desktop, Full Width on Mobile */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Gender</Label>
+                <Select value={filters.gender} onValueChange={(value) => updateFilter("gender", value)}>
+                  <SelectTrigger data-testid="select-gender">
+                    <SelectValue placeholder="Any gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">Any gender</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="non-binary">Non-binary</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="hidden md:block"></div> {/* Empty column - hidden on mobile */}
             </div>
 
-            {/* Relationship Status */}
-            <div className="space-y-2">
-              <Label>Relationship Status</Label>
-              <Select value={filters.relationshipStatus} onValueChange={(value) => updateFilter("relationshipStatus", value)}>
-                <SelectTrigger data-testid="select-relationship-status">
-                  <SelectValue placeholder="Any status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any status</SelectItem>
-                  <SelectItem value="single">Single</SelectItem>
-                  <SelectItem value="married">Married</SelectItem>
-                  <SelectItem value="divorced">Divorced</SelectItem>
-                  <SelectItem value="widowed">Widowed</SelectItem>
-                  <SelectItem value="relationship">In a relationship</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Age Range and Radius - Two Columns */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Age Range */}
+              <div className="space-y-3">
+                <Label>Age Range: {filters.ageRange[0]} - {filters.ageRange[1]}</Label>
+                <Slider
+                  value={filters.ageRange}
+                  onValueChange={(value) => updateFilter("ageRange", value as [number, number])}
+                  min={18}
+                  max={65}
+                  step={1}
+                  className="w-full"
+                  data-testid="slider-age"
+                />
+              </div>
+
+              {/* Radius */}
+              <div className="space-y-3">
+                <Label>Search Radius: {filters.radius} km</Label>
+                <Slider
+                  value={[filters.radius]}
+                  onValueChange={(value) => updateFilter("radius", value[0])}
+                  min={0}
+                  max={150}
+                  step={5}
+                  className="w-full"
+                  data-testid="slider-radius"
+                />
+              </div>
             </div>
 
-            {/* Age Range */}
-            <div className="space-y-3">
-              <Label>Age Range: {filters.ageRange[0]} - {filters.ageRange[1]}</Label>
-              <Slider
-                value={filters.ageRange}
-                onValueChange={(value) => updateFilter("ageRange", value as [number, number])}
-                min={18}
-                max={65}
-                step={1}
-                className="w-full"
-                data-testid="slider-age"
-              />
-            </div>
+            {/* Checkboxes - Same Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="hasPicture"
+                  checked={filters.hasPicture}
+                  onCheckedChange={(checked) => updateFilter("hasPicture", !!checked)}
+                  data-testid="checkbox-has-picture"
+                />
+                <Label htmlFor="hasPicture">Has profile picture</Label>
+              </div>
 
-            {/* Radius */}
-            <div className="space-y-3">
-              <Label>Search Radius: {filters.radius} km</Label>
-              <Slider
-                value={[filters.radius]}
-                onValueChange={(value) => updateFilter("radius", value[0])}
-                min={5}
-                max={50}
-                step={5}
-                className="w-full"
-                data-testid="slider-radius"
-              />
-            </div>
-
-            {/* Has Picture */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="hasPicture"
-                checked={filters.hasPicture}
-                onCheckedChange={(checked) => updateFilter("hasPicture", !!checked)}
-                data-testid="checkbox-has-picture"
-              />
-              <Label htmlFor="hasPicture">Has profile picture</Label>
-            </div>
-
-            {/* Professionals Only */}
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="professionalsOnly"
-                checked={filters.professionalsOnly}
-                onCheckedChange={(checked) => updateFilter("professionalsOnly", !!checked)}
-                data-testid="checkbox-professionals-only"
-              />
-              <Label htmlFor="professionalsOnly">Verified professionals only</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="professionalsOnly"
+                  checked={filters.professionalsOnly}
+                  onCheckedChange={(checked) => updateFilter("professionalsOnly", !!checked)}
+                  data-testid="checkbox-professionals-only"
+                />
+                <Label htmlFor="professionalsOnly">Verified professionals only</Label>
+              </div>
             </div>
           </div>
         </Card>

@@ -8,11 +8,11 @@ import { useAllUsers } from "@/hooks";
 import { useSocket } from "@/contexts/SocketContext";
 import { useSearchPreferences } from "@/hooks/useSearchPreferences";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DEFAULT_FILTERS = {
   location: "",
   gender: "any",
-  relationshipStatus: "any",
   hasPicture: false,
   ageRange: [18, 65] as [number, number],
   rateRange: [20, 100] as [number, number],
@@ -27,6 +27,7 @@ export default function SearchPage() {
   const { onlineUsers } = useSocket();
   const { preferences, savePreferences, isSaving } = useSearchPreferences();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Initialize with preferences (from localStorage) or defaults
   const [searchFilters, setSearchFilters] = useState(() => {
@@ -45,10 +46,6 @@ export default function SearchPage() {
       params.gender = debouncedFilters.gender;
     }
 
-    if (debouncedFilters.relationshipStatus !== "any") {
-      params.relationshipStatus = debouncedFilters.relationshipStatus;
-    }
-
     if (debouncedFilters.hasPicture) {
       params.hasPicture = true;
     }
@@ -65,8 +62,14 @@ export default function SearchPage() {
     params.minAge = debouncedFilters.ageRange[0];
     params.maxAge = debouncedFilters.ageRange[1];
 
+    // Add user's latitude and longitude for radius search
+    if (user?.latitude && user?.longitude) {
+      params.userLatitude = user.latitude;
+      params.userLongitude = user.longitude;
+    }
+
     return params;
-  }, [debouncedFilters]);
+  }, [debouncedFilters, user]);
 
   // Fetch users with debounced filters
   const { users, isLoading } = useAllUsers(apiParams);
