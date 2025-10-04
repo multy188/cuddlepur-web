@@ -164,7 +164,19 @@ export default function UserPage() {
               {/* Name and Kebab Menu */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-3xl font-bold">{displayName}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-3xl font-bold">{displayName}</h2>
+                    {isProfessional && (
+                      <Badge className="bg-orange-600 text-white font-bold hidden md:inline-flex">
+                        Pro
+                      </Badge>
+                    )}
+                    {isProfessional && (
+                      <Badge className="bg-orange-600 text-white font-bold md:hidden">
+                        P
+                      </Badge>
+                    )}
+                  </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -236,6 +248,7 @@ export default function UserPage() {
                 <Button
                   className="flex-1"
                   size="lg"
+                  variant={isProfessional && !isOwnProfile ? "outline" : "default"}
                   onClick={() => {
                     console.log('🔔 Message button clicked, navigating to:', `/messages?userId=${id}`);
                     setLocation(`/messages?userId=${id}`);
@@ -244,15 +257,14 @@ export default function UserPage() {
                   <MessageCircle className="w-5 h-5 mr-2" />
                   Message
                 </Button>
-                {isProfessional && (
+                {isProfessional && !isOwnProfile && (
                   <Button
-                    variant="outline"
-                    className="flex-1"
+                    className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
                     size="lg"
                     onClick={() => setLocation(`/booking/request/${id}`)}
                   >
-                    <Star className="w-5 h-5 mr-2" />
-                    Review Cuddler
+                    <Briefcase className="w-5 h-5 mr-2" />
+                    Book
                   </Button>
                 )}
               </div>

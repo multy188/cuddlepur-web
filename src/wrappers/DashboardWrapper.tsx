@@ -46,7 +46,8 @@ export default function DashboardWrapper() {
       'profile': '/profile',
       'safety-center': '/safety-center',
       'help-support': '/help',
-      'professional-dashboard': '/professional-dashboard'
+      'professional-dashboard': '/professional-dashboard',
+      'apply-to-pro': '/apply-to-pro'
     };
     setLocation(routes[path] || '/dashboard');
   };

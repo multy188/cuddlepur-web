@@ -1,11 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Shield } from "lucide-react";
+import { Users, Shield, AlertCircle, DollarSign } from "lucide-react";
 import ProfileCard from "./ProfileCard";
 import { useDashboard } from "@/hooks";
 import { safetyTips } from "@/const/safety";
 import { useSocket } from "@/contexts/SocketContext";
 import UserGridCard from "./UserGridCard";
+import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useProApplicationStatus } from "@/hooks/useProApplication";
 
 interface DashboardProps {
   userName: string;
@@ -23,6 +26,12 @@ export default function Dashboard({
     featuredProfessionals: onlineProfessionals,
   } = useDashboard();
   const { onlineUsers } = useSocket();
+  const { user } = useAuth();
+  const { data: proApplication } = useProApplicationStatus();
+
+  // Check if user is professional or has pending application
+  const isProfessional = user?.userType === 'PROFESSIONAL';
+  const hasPendingApplication = proApplication?.status === 'PENDING';
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -42,6 +51,16 @@ export default function Dashboard({
       </div>
 
       <div className="max-w-6xl mx-auto p-4 space-y-6">
+        {/* Pending Application Banner */}
+        {hasPendingApplication && (
+          <Alert className="bg-yellow-50 border-yellow-200">
+            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800">
+              We're reviewing your professional application. This usually takes 24-48 hours.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Profile Visitors */}
         <Card className="p-4">
           <h3 className="font-semibold mb-3 flex items-center">
@@ -103,6 +122,54 @@ export default function Dashboard({
             Visit Safety Center
           </Button>
         </Card>
+
+        {/* Apply to Be a Pro Banner */}
+        {!isProfessional && !hasPendingApplication && (
+          <Card className="p-6 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-center justify-center">
+                <img
+                  src="/assets/earn.svg"
+                  alt="Earn money"
+                  className="w-48 h-48 md:w-64 md:h-64"
+                />
+              </div>
+
+              <div className="flex flex-col justify-center">
+                <h3 className="text-2xl font-bold mb-4 text-orange-900">
+                  Become a Professional Cuddler
+                </h3>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-start gap-2">
+                    <DollarSign className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-orange-900">Keep 87.5% of your earnings</p>
+                      <p className="text-sm text-orange-800">
+                        We only take 12.5% - no monthly fees, no hidden charges
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Users className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-orange-900">600,000+ potential clients</p>
+                      <p className="text-sm text-orange-800">
+                        Start receiving interest within days
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => onNavigate("apply-to-pro")}
+                  className="bg-orange-600 hover:bg-orange-700 text-white font-semibold"
+                  size="lg"
+                >
+                  Apply to Be a Pro
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* How It Works */}
         <Card className="p-6">

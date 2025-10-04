@@ -27,6 +27,7 @@ import IdVerificationFailed from "@/pages/IdVerificationFailed";
 import Auth from "@/pages/Auth";
 import SearchPage from "@/pages/SearchPage";
 import UserPage from "@/pages/UserPage";
+import ApplyToPro from "@/pages/ApplyToPro";
 
 // Wrapper components
 import WelcomeWrapper from "@/wrappers/WelcomeWrapper";
@@ -103,6 +104,7 @@ export function Routes() {
         {isAuthenticated && isRegistrationComplete && <Route path="/messages" component={MessagesWrapper} />}
         {isAuthenticated && isRegistrationComplete && <Route path="/profile" component={ProfileWrapper} />}
         {isAuthenticated && isRegistrationComplete && <Route path="/user/:id" component={UserPage} />}
+        {isAuthenticated && isRegistrationComplete && <Route path="/apply-to-pro" component={ApplyToPro} />}
 
         {/* Professional routes */}
         {isAuthenticated && isRegistrationComplete && <Route path="/professional/:id" component={ProfessionalViewWrapper} />}

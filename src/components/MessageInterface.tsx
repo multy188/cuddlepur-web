@@ -22,6 +22,7 @@ interface MessageInterfaceProps {
   contactName: string;
   contactImage: string;
   isOnline: boolean;
+  isProfessional?: boolean;
   messages: Message[];
   onSendMessage: (message: string) => void;
   onSendImage?: (imageUrl: string) => void;
@@ -36,6 +37,7 @@ export default function MessageInterface({
   contactName,
   contactImage,
   isOnline,
+  isProfessional = false,
   messages,
   onSendMessage,
   onSendImage,
@@ -162,7 +164,19 @@ export default function MessageInterface({
             className={onContactClick ? 'cursor-pointer' : ''}
             onClick={onContactClick}
           >
-            <h3 className="font-semibold" data-testid="text-contact-name">{contactName}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold" data-testid="text-contact-name">{contactName}</h3>
+              {isProfessional && (
+                <Badge className="bg-orange-600 text-white font-bold text-xs hidden md:inline-flex">
+                  Pro
+                </Badge>
+              )}
+              {isProfessional && (
+                <Badge className="bg-orange-600 text-white font-bold text-xs md:hidden">
+                  P
+                </Badge>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">
               {isOnline ? "Online now" : "Last seen recently"}
             </p>

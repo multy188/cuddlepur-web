@@ -78,14 +78,16 @@ export default function UserGridCard({
           </div>
         )}
 
-        {/* Professional Badge - Top Right */}
-        {isProfessional && (
+        {/* Rating/Reviews - Top Right */}
+        {reviewCount > 0 && (
           <div className="absolute top-2 right-2">
             <Badge
-              variant="default"
-              className="h-5 px-1.5 text-xs font-bold bg-primary/90 text-primary-foreground"
+              variant="secondary"
+              className="h-5 px-2 text-xs bg-black/70 text-white border-0"
             >
-              Pr
+              <Star className="h-3 w-3 text-yellow-400 mr-1 fill-current" />
+              <span className="font-medium">{rating}</span>
+              <span className="ml-1">({reviewCount})</span>
             </Badge>
           </div>
         )}
@@ -95,16 +97,14 @@ export default function UserGridCard({
           <div className="absolute bottom-3 right-2 h-3 w-3 bg-status-online border-2 border-white rounded-full" />
         )}
 
-        {/* Rating/Reviews - Bottom Left */}
-        {reviewCount > 0 && (
+        {/* Professional Badge - Bottom Left */}
+        {isProfessional && (
           <div className="absolute bottom-2 left-2">
             <Badge
-              variant="secondary"
-              className="h-5 px-2 text-xs bg-black/70 text-white border-0"
+              variant="default"
+              className="h-5 px-1.5 text-xs font-bold bg-orange-600 text-white"
             >
-              <Star className="h-3 w-3 text-yellow-400 mr-1 fill-current" />
-              <span className="font-medium">{rating}</span>
-              <span className="ml-1">({reviewCount})</span>
+              {isSmall ? "P" : "Pro"}
             </Badge>
           </div>
         )}
